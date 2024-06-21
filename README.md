@@ -1,5 +1,4 @@
 # Side Quest 
-```markdown
 # Sidequests Documentation
 
 ## Overview
@@ -59,4 +58,3 @@ Sidequests is a platform designed to enhance user engagement at events by allowi
 
 ## Conclusion
 Sidequests enhances event experiences by offering a structured and rewarding way for users to participate in activities. By completing quests and earning tokens, users stay engaged and motivated, making events more enjoyable and memorable.
-```
