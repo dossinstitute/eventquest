@@ -1,0 +1,1268 @@
+Quest Definition and Setup
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Quest Definition and Setup</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 400px;
+        }
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+        input, select, button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Quest Definition and Setup</h1>
+        <form>
+            <label for="event-id">Event ID:</label>
+            <input type="text" id="event-id" name="event-id" required>
+
+            <label for="start-date">Start Date:</label>
+            <input type="date" id="start-date" name="start-date" required>
+
+            <label for="end-date">End Date:</label>
+            <input type="date" id="end-date" name="end-date" required>
+
+            <label for="interactions">Number of Required Interactions:</label>
+            <input type="number" id="interactions" name="interactions" min="3" required>
+
+            <label for="reward-details">Reward Details:</label>
+            <select id="reward-details" name="reward-details" required>
+                <option value="NFT">NFT</option>
+                <option value="token">Token</option>
+            </select>
+
+            <button type="submit">Create Quest</button>
+        </form>
+    </div>
+</body>
+</html>
+
+
+
+User Registration and Participation
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>User Registration and Participation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 400px;
+        }
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .status {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>User Registration and Participation</h1>
+        <form id="registration-form">
+            <label for="wallet-address">Wallet Address:</label>
+            <input type="text" id="wallet-address" name="wallet-address" required>
+
+            <button type="submit">Register</button>
+        </form>
+
+        <div class="status">
+            <h2>Registration Status</h2>
+            <label for="check-wallet-address">Check Wallet Address:</label>
+            <input type="text" id="check-wallet-address" name="check-wallet-address">
+
+            <button id="check-status">Check Status</button>
+            <p id="status-result"></p>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('registration-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            // Logic to register the user
+            // Validate wallet address and store user details
+            alert('User registered successfully!');
+        });
+
+        document.getElementById('check-status').addEventListener('click', function() {
+            // Logic to check the registration status of the provided wallet address
+            const walletAddress = document.getElementById('check-wallet-address').value;
+            // Retrieve and display status
+            document.getElementById('status-result').textContent = 'Status: Registered/Not Registered'; // Example result
+        });
+    </script>
+</body>
+</html>
+
+
+
+Interaction Verification
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Interaction Verification</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 400px;
+        }
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .admin-section {
+            margin-top: 40px;
+        }
+        .admin-section h2 {
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+        .admin-section ul {
+            list-style: none;
+            padding: 0;
+        }
+        .admin-section li {
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Interaction Verification</h1>
+        <form id="interaction-form">
+            <label for="event-id">Event ID:</label>
+            <input type="text" id="event-id" name="event-id" required>
+
+            <label for="wallet-address">Wallet Address:</label>
+            <input type="text" id="wallet-address" name="wallet-address" required>
+
+            <label for="qr-code">QR Code:</label>
+            <input type="text" id="qr-code" name="qr-code" required>
+
+            <button type="submit">Submit Interaction</button>
+        </form>
+
+        <div class="admin-section">
+            <h2>Admin Functions</h2>
+            <button id="manage-events">Manage Event IDs</button>
+            <button id="review-interactions">Review Interactions</button>
+
+            <h3>Interactions Log</h3>
+            <ul id="interactions-log">
+                <!-- Interaction logs will be dynamically populated here -->
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('interaction-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            // Logic to submit interaction
+            // Validate and store the interaction
+            alert('Interaction submitted successfully!');
+        });
+
+        document.getElementById('manage-events').addEventListener('click', function() {
+            // Logic for admin to manage event IDs
+            alert('Manage Event IDs clicked');
+        });
+
+        document.getElementById('review-interactions').addEventListener('click', function() {
+            // Logic for admin to review interactions
+            alert('Review Interactions clicked');
+        });
+
+        // Example of dynamically adding interaction logs
+        // This would normally be populated with real data from the contract
+        const interactionsLog = document.getElementById('interactions-log');
+        const logItem = document.createElement('li');
+        logItem.textContent = 'Event ID: 1, Wallet: 0x123, QR Code: ABC';
+        interactionsLog.appendChild(logItem);
+    </script>
+</body>
+</html>
+
+
+
+Interaction Tracking
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Interaction Tracking</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 400px;
+        }
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .interaction-log {
+            margin-top: 20px;
+        }
+        .interaction-log ul {
+            list-style: none;
+            padding: 0;
+        }
+        .interaction-log li {
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Interaction Tracking</h1>
+        <form id="interaction-form">
+            <label for="event-id">Event ID:</label>
+            <input type="text" id="event-id" name="event-id" required>
+
+            <label for="wallet-address">Wallet Address:</label>
+            <input type="text" id="wallet-address" name="wallet-address" required>
+
+            <label for="qr-code">QR Code:</label>
+            <input type="text" id="qr-code" name="qr-code" required>
+
+            <button type="submit">Submit Interaction</button>
+        </form>
+
+        <div class="interaction-log">
+            <h2>Interaction Log</h2>
+            <ul id="log">
+                <!-- Interaction logs will be dynamically populated here -->
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('interaction-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const eventId = document.getElementById('event-id').value;
+            const walletAddress = document.getElementById('wallet-address').value;
+            const qrCode = document.getElementById('qr-code').value;
+
+            // Logic to submit interaction
+            // Validate and store the interaction
+            // Check for uniqueness of QR code per attendee and event
+
+            // Example result for demonstration purposes
+            const logItem = document.createElement('li');
+            logItem.textContent = `Event ID: ${eventId}, Wallet: ${walletAddress}, QR Code: ${qrCode}`;
+            document.getElementById('log').appendChild(logItem);
+
+            alert('Interaction submitted successfully!');
+        });
+    </script>
+</body>
+</html>
+
+
+
+
+Quest Completion Check
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Quest Completion Check</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 400px;
+        }
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .completion-status {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Quest Completion Check</h1>
+        <div class="completion-check">
+            <h2>Check Quest Completion</h2>
+            <label for="check-event-id">Event ID:</label>
+            <input type="text" id="check-event-id" name="check-event-id" required>
+
+            <label for="check-wallet-address">Wallet Address:</label>
+            <input type="text" id="check-wallet-address" name="check-wallet-address" required>
+
+            <button id="check-completion-status">Check Completion Status</button>
+
+            <div class="completion-status">
+                <p id="completion-status-result"></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('check-completion-status').addEventListener('click', function() {
+            // Logic to check quest completion status
+            const eventId = document.getElementById('check-event-id').value;
+            const walletAddress = document.getElementById('check-wallet-address').value;
+            // Example result for demonstration purposes
+            document.getElementById('completion-status-result').textContent = `User with wallet ${walletAddress} has completed the quest for event ${eventId}: Yes/No`;
+        });
+    </script>
+</body>
+</html>
+
+
+
+Reward Distribution
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Reward Distribution</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 400px;
+        }
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .reward-status {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Reward Distribution</h1>
+        
+        <div class="reward-check">
+            <h2>Check Reward Distribution Status</h2>
+            <label for="quest-id">Quest ID:</label>
+            <input type="text" id="quest-id" name="quest-id" required>
+
+            <label for="wallet-address">Wallet Address:</label>
+            <input type="text" id="wallet-address" name="wallet-address" required>
+
+            <button id="check-reward-status">Check Status</button>
+
+            <div class="reward-status">
+                <p id="reward-status-result"></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('check-reward-status').addEventListener('click', function() {
+            // Logic to check reward distribution status
+            const questId = document.getElementById('quest-id').value;
+            const walletAddress = document.getElementById('wallet-address').value;
+            // Example result for demonstration purposes
+            document.getElementById('reward-status-result').textContent = `Reward distribution status for wallet ${walletAddress} for quest ${questId}: Distributed/Not Distributed`;
+        });
+
+        // Simulate automatic reward distribution upon quest completion
+        function distributeReward(questId, walletAddress) {
+            // Logic to distribute reward
+            alert(`Reward distributed to wallet ${walletAddress} for quest ${questId}`);
+        }
+    </script>
+</body>
+</html>
+
+
+
+Security and Validations
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Security and Validations</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 400px;
+        }
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .admin-functions {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Security and Validations</h1>
+        
+        <form id="interaction-form">
+            <label for="event-id">Event ID:</label>
+            <input type="text" id="event-id" name="event-id" required>
+
+            <label for="wallet-address">Wallet Address:</label>
+            <input type="text" id="wallet-address" name="wallet-address" required>
+
+            <label for="qr-code">QR Code:</label>
+            <input type="text" id="qr-code" name="qr-code" required>
+
+            <button type="submit">Submit Interaction</button>
+        </form>
+
+        <div class="admin-functions">
+            <h2>Admin Functions</h2>
+            <label for="manage-event-id">Manage Event ID:</label>
+            <input type="text" id="manage-event-id" name="manage-event-id">
+
+            <button id="manage-interactions">Manage Interactions</button>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('interaction-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const eventId = document.getElementById('event-id').value;
+            const walletAddress = document.getElementById('wallet-address').value;
+            const qrCode = document.getElementById('qr-code').value;
+
+            // Logic to submit interaction
+            // Validate and store the interaction
+            // Check for uniqueness of QR code per attendee and event
+            // Emit event for interaction submission
+
+            alert('Interaction submitted successfully!');
+        });
+
+        document.getElementById('manage-interactions').addEventListener('click', function() {
+            const eventId = document.getElementById('manage-event-id').value;
+            
+            // Logic for admin to manage interactions
+            // Emit event for interaction management
+
+            alert('Interactions managed successfully!');
+        });
+    </script>
+</body>
+</html>
+
+
+Event Admin Functions
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Event Admin Functions</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 400px;
+        }
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+        input, textarea, button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .admin-section {
+            margin-top: 20px;
+        }
+        textarea {
+            resize: vertical;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Event Admin Functions</h1>
+        
+        <div class="admin-section" id="create-quest">
+            <h2>Create New Quest</h2>
+            <label for="quest-name">Quest Name:</label>
+            <input type="text" id="quest-name" name="quest-name" required>
+
+            <label for="quest-description">Quest Description:</label>
+            <textarea id="quest-description" name="quest-description" rows="3" required></textarea>
+
+            <label for="quest-start-date">Start Date:</label>
+            <input type="date" id="quest-start-date" name="quest-start-date" required>
+
+            <label for="quest-end-date">End Date:</label>
+            <input type="date" id="quest-end-date" name="quest-end-date" required>
+
+            <label for="quest-rewards">Rewards (NFT/Token):</label>
+            <input type="text" id="quest-rewards" name="quest-rewards" required>
+
+            <button id="create-quest-button">Create Quest</button>
+        </div>
+
+        <div class="admin-section" id="update-event">
+            <h2>Set/Update Event Details</h2>
+            <label for="event-name">Event Name:</label>
+            <input type="text" id="event-name" name="event-name" required>
+
+            <label for="event-location">Event Location:</label>
+            <input type="text" id="event-location" name="event-location" required>
+
+            <label for="event-date">Event Date:</label>
+            <input type="date" id="event-date" name="event-date" required>
+
+            <label for="event-description">Event Description:</label>
+            <textarea id="event-description" name="event-description" rows="3" required></textarea>
+
+            <button id="update-event-button">Set/Update Event</button>
+        </div>
+
+        <div class="admin-section" id="monitor-progress">
+            <h2>Monitor User Progress</h2>
+            <label for="user-wallet">User Wallet Address:</label>
+            <input type="text" id="user-wallet" name="user-wallet" required>
+
+            <button id="monitor-progress-button">View Progress</button>
+
+            <div id="user-progress">
+                <!-- User progress details will be displayed here -->
+            </div>
+        </div>
+
+        <div class="admin-section" id="distribute-rewards">
+            <h2>Distribute Rewards Manually</h2>
+            <label for="reward-wallet">User Wallet Address:</label>
+            <input type="text" id="reward-wallet" name="reward-wallet" required>
+
+            <label for="reward-amount">Reward Amount:</label>
+            <input type="number" id="reward-amount" name="reward-amount" required>
+
+            <button id="distribute-rewards-button">Distribute Reward</button>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('create-quest-button').addEventListener('click', function() {
+            const name = document.getElementById('quest-name').value;
+            const description = document.getElementById('quest-description').value;
+            const startDate = document.getElementById('quest-start-date').value;
+            const endDate = document.getElementById('quest-end-date').value;
+            const rewards = document.getElementById('quest-rewards').value;
+            
+            // Logic to create new quest
+            // Emit event for quest creation
+
+            alert(`Quest "${name}" created successfully!`);
+        });
+
+        document.getElementById('update-event-button').addEventListener('click', function() {
+            const name = document.getElementById('event-name').value;
+            const location = document.getElementById('event-location').value;
+            const date = document.getElementById('event-date').value;
+            const description = document.getElementById('event-description').value;
+
+            // Logic to set/update event details
+            // Emit event for event update
+
+            alert(`Event "${name}" updated successfully!`);
+        });
+
+        document.getElementById('monitor-progress-button').addEventListener('click', function() {
+            const walletAddress = document.getElementById('user-wallet').value;
+
+            // Logic to view user progress
+            // Fetch and display user progress details
+
+            alert(`Displaying progress for wallet: ${walletAddress}`);
+        });
+
+        document.getElementById('distribute-rewards-button').addEventListener('click', function() {
+            const walletAddress = document.getElementById('reward-wallet').value;
+            const amount = document.getElementById('reward-amount').value;
+
+            // Logic to distribute rewards manually
+            // Emit event for reward distribution
+
+            alert(`Reward of ${amount} distributed to wallet: ${walletAddress}`);
+        });
+    </script>
+</body>
+</html>
+
+
+Testing and Deployment
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Testing and Deployment</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 500px;
+        }
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+        input, button, select {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .test-results {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Testing and Deployment</h1>
+        
+        <div id="deploy-testnet">
+            <h2>Deploy Contract to Testnet</h2>
+            <label for="testnet-select">Select Testnet:</label>
+            <select id="testnet-select" name="testnet-select">
+                <option value="rinkeby">Rinkeby</option>
+                <option value="ropsten">Ropsten</option>
+                <option value="kovan">Kovan</option>
+            </select>
+            <button id="deploy-testnet-button">Deploy to Testnet</button>
+        </div>
+
+        <div class="admin-section" id="develop-unit-tests">
+            <h2>Develop Unit Tests</h2>
+            <button id="run-tests-button">Run Unit Tests</button>
+
+            <div class="test-results" id="test-results">
+                <!-- Test results will be displayed here -->
+            </div>
+        </div>
+
+        <div class="admin-section" id="prepare-mainnet-deployment">
+            <h2>Prepare for Mainnet Deployment</h2>
+            <button id="prepare-mainnet-button">Prepare for Mainnet Deployment</button>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('deploy-testnet-button').addEventListener('click', function() {
+            const testnet = document.getElementById('testnet-select').value;
+
+            // Logic to deploy contract to the selected testnet
+            // Display status message or result
+
+            alert(`Contract deployed to ${testnet} testnet successfully!`);
+        });
+
+        document.getElementById('run-tests-button').addEventListener('click', function() {
+            // Logic to run unit tests using a testing framework like Truffle, Hardhat, or Remix
+            // Display test results in the test-results div
+
+            const testResults = `
+                <p>Test Results:</p>
+                <ul>
+                    <li>Quest creation: Passed</li>
+                    <li>User registration: Passed</li>
+                    <li>Interaction submission: Passed</li>
+                    <li>Quest completion checks: Passed</li>
+                    <li>Reward distribution: Passed</li>
+                    <li>Parameter storage and retrieval: Passed</li>
+                    <li>User interactions and statuses tracking: Passed</li>
+                    <li>Validation and security checks: Passed</li>
+                    <li>Prevention of multiple reward distributions: Passed</li>
+                </ul>
+            `;
+            document.getElementById('test-results').innerHTML = testResults;
+        });
+
+        document.getElementById('prepare-mainnet-button').addEventListener('click', function() {
+            // Logic to prepare for mainnet deployment
+            // Display status message or result
+
+            alert('Contract prepared for mainnet deployment successfully!');
+        });
+    </script>
+</body>
+</html>
+
+
+Point System and Leaderboard
+
+  <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Point System and Leaderboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 500px;
+        }
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+        input, button, select {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .leaderboard {
+            margin-top: 20px;
+        }
+        .leaderboard-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            border-bottom: 1px solid #ccc;
+        }
+        .leaderboard-item:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Point System and Leaderboard</h1>
+        
+        <div id="award-points">
+            <h2>Award Points for Quest Completion</h2>
+            <label for="user-wallet">User Wallet Address:</label>
+            <input type="text" id="user-wallet" name="user-wallet" required>
+
+            <label for="quest-name">Quest Name:</label>
+            <input type="text" id="quest-name" name="quest-name" required>
+
+            <label for="points-awarded">Points Awarded:</label>
+            <input type="number" id="points-awarded" name="points-awarded" required>
+
+            <button id="award-points-button">Award Points</button>
+        </div>
+
+        <div class="leaderboard">
+            <h2>Leaderboard</h2>
+            <button id="get-leaderboard-button">Get Leaderboard</button>
+
+            <div id="leaderboard-list">
+                <!-- Leaderboard items will be displayed here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('award-points-button').addEventListener('click', function() {
+            const userWallet = document.getElementById('user-wallet').value;
+            const questName = document.getElementById('quest-name').value;
+            const pointsAwarded = document.getElementById('points-awarded').value;
+
+            // Logic to award points to user for quest completion
+            // Update leaderboard accordingly
+
+            alert(`Points awarded: ${pointsAwarded} to ${userWallet} for ${questName}`);
+        });
+
+        document.getElementById('get-leaderboard-button').addEventListener('click', function() {
+            // Logic to fetch and display leaderboard
+            const leaderboardList = document.getElementById('leaderboard-list');
+
+            // Example leaderboard data (mock data)
+            const leaderboardData = [
+                { user: 'User1', points: 150 },
+                { user: 'User2', points: 120 },
+                { user: 'User3', points: 100 },
+                { user: 'User4', points: 80 },
+                { user: 'User5', points: 50 }
+            ];
+
+            leaderboardList.innerHTML = ''; // Clear previous leaderboard
+
+            leaderboardData.forEach(item => {
+                const listItem = document.createElement('div');
+                listItem.classList.add('leaderboard-item');
+                listItem.innerHTML = `<span>${item.user}</span><span>${item.points} points</span>`;
+                leaderboardList.appendChild(listItem);
+            });
+        });
+    </script>
+</body>
+</html>
+
+
+
+Checkout & Redeem
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Points Redemption System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 500px;
+        }
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+        input, button, select {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .reward-list {
+            margin-top: 20px;
+        }
+        .reward-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            border-bottom: 1px solid #ccc;
+        }
+        .reward-item:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Points Redemption System</h1>
+        
+        <div id="redeem-points">
+            <h2>Redeem Points for Rewards</h2>
+            <label for="user-wallet">User Wallet Address:</label>
+            <input type="text" id="user-wallet" name="user-wallet" required>
+
+            <label for="reward-select">Select Reward:</label>
+            <select id="reward-select" name="reward-select" required>
+                <option value="">Select Reward</option>
+                <option value="reward1">Reward 1 - 100 points</option>
+                <option value="reward2">Reward 2 - 200 points</option>
+                <option value="reward3">Reward 3 - 300 points</option>
+            </select>
+
+            <button id="redeem-points-button">Redeem Points</button>
+        </div>
+
+        <div class="reward-list">
+            <h2>Manage Rewards</h2>
+            <button id="refresh-rewards-button">Refresh Rewards</button>
+
+            <div id="reward-items">
+                <!-- Reward items will be displayed here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('redeem-points-button').addEventListener('click', function() {
+            const userWallet = document.getElementById('user-wallet').value;
+            const selectedReward = document.getElementById('reward-select').value;
+
+            // Logic to redeem points for selected reward
+            // Deduct points from user's balance
+            // Update UI accordingly
+
+            alert(`Points redeemed for ${selectedReward} successfully by ${userWallet}`);
+        });
+
+        document.getElementById('refresh-rewards-button').addEventListener('click', function() {
+            // Logic to fetch and display rewards
+            const rewardItems = document.getElementById('reward-items');
+
+            // Example reward data (mock data)
+            const rewards = [
+                { name: 'Reward 1', points: 100 },
+                { name: 'Reward 2', points: 200 },
+                { name: 'Reward 3', points: 300 }
+            ];
+
+            rewardItems.innerHTML = ''; // Clear previous rewards
+
+            rewards.forEach(item => {
+                const rewardItem = document.createElement('div');
+                rewardItem.classList.add('reward-item');
+                rewardItem.innerHTML = `<span>${item.name}</span><span>${item.points} points</span>`;
+                rewardItems.appendChild(rewardItem);
+            });
+        });
+    </script>
+</body>
+</html>
+
+
