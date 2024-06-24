@@ -36,16 +36,10 @@ const config: HardhatUserConfig = {
       gasPrice: 1000000000,
     },
   },
-  // sourcify: {
-  //   enabled: true
-  // },
-
   defaultNetwork: 'hardhat',
-  etherscan: {
-	// etherscan: {
-  //   apiKey: "8MXEX2SJ5AX8968UK1G9YGXNQ8SB8GGP1Q", // Replace with your actual Etherscan API key
+	etherscan: {
 		apiKey: {
-			"base-sepolia": "8MXEX2SJ5AX8968UK1G9YGXNQ8SB8GGP1Q"
+			"base-sepolia": "PLACEHOLDER_STRING"
 		},
 		customChains: [
 			{
