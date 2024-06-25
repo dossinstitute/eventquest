@@ -17,35 +17,28 @@ describe("QuestManager", function () {
 	});
 
 	describe("Quest Creation", function () {
+
 		it("Should create a quest", async function () {
 			const eventId = 1;
-			const startDate = Math.floor(Date.now() / 1000);
+			const startDate = Math.floor(Date.now() / 1000); // Current timestamp
 			const endDate = startDate + 86400; // 1 day from now
 			const requiredInteractions = 3;
 			const rewardType = "NFT";
 
-			await questManager.createQuest(eventId, startDate, endDate, requiredInteractions, rewardType);
-
-			const quest = await questManager.getQuest(eventId);
-			expect(quest.eventId).to.equal(eventId);
-			expect(quest.startDate).to.equal(startDate);
-			expect(quest.endDate).to.equal(endDate);
-			expect(quest.requiredInteractions).to.equal(requiredInteractions);
-			expect(quest.rewardType).to.equal(rewardType);
-		});
-
-		it("Should emit a QuestCreated event", async function () {
-			const eventId = 2;
-			const startDate = Math.floor(Date.now() / 1000);
-			const endDate = startDate + 86400; // 1 day from now
-			const requiredInteractions = 3;
-			const rewardType = "token";
-
 			await expect(
 				questManager.createQuest(eventId, startDate, endDate, requiredInteractions, rewardType)
 			).to.emit(questManager, "QuestCreated")
-				.withArgs(eventId, startDate, endDate, requiredInteractions, rewardType);
-		});
+				.withArgs(1, eventId, startDate, endDate, requiredInteractions, rewardType);
+
+				const quest = await questManager.getQuest(1); // Retrieve using the generated questId
+				// expect(quest.questId).to.equal(1);
+				expect(quest.eventId).to.equal(eventId);
+				expect(quest.startDate).to.equal(startDate);
+				expect(quest.endDate).to.equal(endDate);
+				expect(quest.requiredInteractions).to.equal(requiredInteractions);
+				expect(quest.rewardType).to.equal(rewardType);
+			});
+
 
 		it("Should revert if required interactions are less than three", async function () {
 			const eventId = 3;
