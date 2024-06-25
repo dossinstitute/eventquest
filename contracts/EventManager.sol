@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.23;
 
-import "./Quest.sol"; // Import the QuestManager contract
+import "./QuestManager.sol"; // Import the QuestManager contract
 
 contract EventManager {
     address public admin;
@@ -26,6 +26,9 @@ contract EventManager {
     constructor(address _questManagerAddress) {
         admin = msg.sender;
         questManager = QuestManager(_questManagerAddress);
+    }
+    function getQuestInfo(uint256 _eventId, uint256 _questId) public view returns (QuestInfo memory) {
+      return events[_eventId].quests[_questId];
     }
     modifier onlyAdmin() {
         require(msg.sender == admin, "Only admin can perform this action");

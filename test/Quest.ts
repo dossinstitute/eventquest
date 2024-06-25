@@ -1,15 +1,33 @@
 const { expect } = require("chai");
+const { ethers } = require("hardhat");
 
 describe("QuestManager", function () {
 	let QuestManager, questManager, owner, addr1, addr2;
 
-	beforeEach(async function () {
-		QuestManager = await ethers.getContractFactory("QuestManager");
-		[owner, addr1, addr2] = await ethers.getSigners();
+	// beforeEach(async function () {
+	// 	QuestManager = await ethers.getContractFactory("QuestManager");
+	// 	[owner, addr1, addr2] = await ethers.getSigners();
+  //
+	// 	console.log("QuestManager Deploying QuestManager...");
+	// 	questManager = await QuestManager.deploy();
+	// 	await questManager.deployTransaction.wait();
+	// 	console.log("QuestManager QuestManager deployed at:", questManager.address);
+	// });
+	beforeEach(async function () {                                                                      
+		const QuestManagerFactory = await ethers.getContractFactory("QuestManager");                                   
+		[owner, addr1, addr2] = await ethers.getSigners();                                                
 
-		questManager = await QuestManager.deploy();
+		console.log("QuestManager Deploying QuestManager...");
+
+		// Deploy the contract
+		questManager = await QuestManagerFactory.deploy();
+
+		// Check if questManager is correctly defined
+		// console.log("Contract instance:", questManager);
+			await questManager.waitForDeployment();
+			console.log("QuestManager deployed at:", await questManager.getAddress());
+
 	});
-
 	describe("Deployment", function () {
 		it("Should set the right admin", async function () {
 			expect(await questManager.admin()).to.equal(owner.address);
