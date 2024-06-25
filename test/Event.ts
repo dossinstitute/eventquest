@@ -92,42 +92,42 @@ describe("EventManager", function () {
       expect(eventIds).to.include(2n);
     });
   });
-	// describe("Access Control", function () {
-	// 	it("Should revert if non-admin tries to create an event", async function () {
-	// 		const startTime = Math.floor(Date.now() / 1000);
-	// 		const endTime = startTime + 86400; // 1 day from now
-	// 		const description = "Unauthorized Event";
-  //
-	// 		await expect(
-	// 			eventManager.connect(addr1).createEvent(startTime, endTime, description)
-	// 		).to.be.revertedWith("Only admin can perform this action");
-	// 	});
-  //
-	// 	it("Should revert if non-admin tries to update an event", async function () {
-	// 		const newStartTime = Math.floor(Date.now() / 1000) + 86400; // 1 day from now
-	// 		const newEndTime = newStartTime + 86400; // 1 day later
-	// 		const newDescription = "Unauthorized Update";
-  //
-	// 		await expect(
-	// 			eventManager.connect(addr1).updateEvent(1, newStartTime, newEndTime, newDescription)
-	// 		).to.be.revertedWith("Only admin can perform this action");
-	// 	});
-  //
-	// 	it("Should revert if non-admin tries to delete an event", async function () {
-	// 		await expect(
-	// 			eventManager.connect(addr1).deleteEvent(1)
-	// 		).to.be.revertedWith("Only admin can perform this action");
-	// 	});
-  //
-	// 	it("Should revert if non-admin tries to assign a quest to an event", async function () {
-	// 		// Assuming a quest with ID 1 exists in QuestManager
-	// 		const questStartTime = Math.floor(Date.now() / 1000);
-	// 		const questEndTime = questStartTime + 86400; // 1 day from now
-  //
-	// 		await expect(
-	// 			eventManager.connect(addr1).assignQuestToEvent(1, 1, questStartTime, questEndTime)
-	// 		).to.be.revertedWith("Only admin can perform this action");
-	// 	});
-	// });
+	describe("Access Control", function () {
+		it("Should revert if non-admin tries to create an event", async function () {
+			const startTime = Math.floor(Date.now() / 1000);
+			const endTime = startTime + 86400; // 1 day from now
+			const description = "Unauthorized Event";
+
+			await expect(
+				eventManager.connect(addr1).createEvent(startTime, endTime, description)
+			).to.be.revertedWith("Only admin can perform this action");
+		});
+
+		it("Should revert if non-admin tries to update an event", async function () {
+			const newStartTime = Math.floor(Date.now() / 1000) + 86400; // 1 day from now
+			const newEndTime = newStartTime + 86400; // 1 day later
+			const newDescription = "Unauthorized Update";
+
+			await expect(
+				eventManager.connect(addr1).updateEvent(1, newStartTime, newEndTime, newDescription)
+			).to.be.revertedWith("Only admin can perform this action");
+		});
+
+		it("Should revert if non-admin tries to delete an event", async function () {
+			await expect(
+				eventManager.connect(addr1).deleteEvent(1)
+			).to.be.revertedWith("Only admin can perform this action");
+		});
+
+		it("Should revert if non-admin tries to assign a quest to an event", async function () {
+			// Assuming a quest with ID 1 exists in QuestManager
+			const questStartTime = Math.floor(Date.now() / 1000);
+			const questEndTime = questStartTime + 86400; // 1 day from now
+
+			await expect(
+				eventManager.connect(addr1).assignQuestToEvent(1, 1, questStartTime, questEndTime)
+			).to.be.revertedWith("Only admin can perform this action");
+		});
+	});
 
 });
