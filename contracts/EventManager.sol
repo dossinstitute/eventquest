@@ -9,6 +9,11 @@ contract EventManager {
     QuestManager private questManager;
     enum EventStatus { Active, Completed }
 		uint256 public eventCount;
+    struct QuestInfo {
+        uint256 questId;
+        uint256 startTime;
+        uint256 endTime;
+    }
     struct Event {
         uint256 id;
         uint256 startTime;
@@ -16,11 +21,6 @@ contract EventManager {
         string description;
         EventStatus status;
         mapping(uint256 => QuestInfo) quests;
-    }
-    struct QuestInfo {
-        uint256 questId;
-        uint256 startTime;
-        uint256 endTime;
     }
     mapping(uint256 => Event) public events;
     constructor(address _questManagerAddress) {
@@ -34,19 +34,41 @@ contract EventManager {
         require(msg.sender == admin, "Only admin can perform this action");
         _;
     }
-		function createEvent(
-			uint256 _startTime,
-			uint256 _endTime,
-			string memory _description
-		) public onlyAdmin {
-			uint256 newEventId = ++eventCount; // Increment the event count and use it as the new event ID
-			Event storage newEvent = events[newEventId];
-			newEvent.id = newEventId;
-			newEvent.startTime = _startTime;
-			newEvent.endTime = _endTime;
-			newEvent.description = _description;
-			newEvent.status = EventStatus.Active;
-		}
+    event EventCreated(uint256 eventId, uint256 startTime, uint256 endTime, string description);
+    function createEvent(
+        uint256 _startTime,
+        uint256 _endTime,
+        string memory _description
+    )  public onlyAdmin returns (uint256) {
+        uint256 newEventId = ++eventCount;
+        Event storage newEvent = events[newEventId];
+        newEvent.id = newEventId;
+        newEvent.startTime = _startTime;
+        newEvent.endTime = _endTime;
+        newEvent.description = _description;
+        newEvent.status = EventStatus.Active;
+        emit EventCreated(newEventId, _startTime, _endTime, _description);
+        return newEventId;
+    }
+
+    function addQuestToEvent(uint256 _eventId, uint256 _questId, uint256 _questStartTime, uint256 _questEndTime) external onlyAdmin {
+        require(events[_eventId].id!= 0, "Event does not exist");
+        events[_eventId].quests[_questId] = QuestInfo(_questId, _questStartTime, _questEndTime);
+    }
+  // function createEvent(
+		// 	uint256 _startTime,
+		// 	uint256 _endTime,
+		// 	string memory _description
+		// ) public onlyAdmin returns (uint256) {
+		// 	uint256 newEventId = ++eventCount; // Increment the event count and use it as the new event ID
+		// 	Event storage newEvent = events[newEventId];
+		// 	newEvent.id = newEventId;
+		// 	newEvent.startTime = _startTime;
+		// 	newEvent.endTime = _endTime;
+		// 	newEvent.description = _description;
+		// 	newEvent.status = EventStatus.Active;
+    //   return newEventId; // Return the new event ID
+		// }
     function updateEvent(
         uint256 _id,
         uint256 _newStartTime,

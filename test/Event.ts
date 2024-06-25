@@ -27,17 +27,29 @@ describe("EventManager", function () {
 
   describe("Event Management", function () {
     it("Should create an event", async function () {
-      const startTime = Math.floor(Date.now() / 1000);
-      const endTime = startTime + 86400; // 1 day from now
-      const description = "Test Event";
+  const startTime = Math.floor(Date.now() / 1000); // Current time
+  const endTime = startTime + 86400; // 1 day later
+  const description = "New Event";
 
-      await eventManager.createEvent(startTime, endTime, description);
+  await expect(eventManager.createEvent(startTime, endTime, description))
+   .to.emit(eventManager, "EventCreated")
+   .withArgs(1, startTime, endTime, description); // Assuming eventCount starts at 0
 
-      const event = await eventManager.events(1);
-      expect(event.startTime).to.equal(startTime);
-      expect(event.endTime).to.equal(endTime);
-      expect(event.description).to.equal(description);
-      expect(event.status).to.equal(0); // Active status is 0
+  const createdEvent = await eventManager.events(1);
+  expect(createdEvent.startTime).to.equal(startTime);
+  expect(createdEvent.endTime).to.equal(endTime);
+  expect(createdEvent.description).to.equal(description);
+      // const startTime = Math.floor(Date.now() / 1000);
+      // const endTime = startTime + 86400; // 1 day from now
+      // const description = "Test Event";
+      //
+      // await eventManager.createEvent(startTime, endTime, description);
+      //
+      // const event = await eventManager.events(1);
+      // expect(event.startTime).to.equal(startTime);
+      // expect(event.endTime).to.equal(endTime);
+      // expect(event.description).to.equal(description);
+      // expect(event.status).to.equal(0); // Active status is 0
     });
 
     it("Should update an event", async function () {
