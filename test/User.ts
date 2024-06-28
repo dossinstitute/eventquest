@@ -1,4 +1,5 @@
 const { expect } = require("chai");
+const { ethers } = require("hardhat");
 
 describe("UserManager", function () {
     let UserManagerFactory, QuestManagerFactory;
@@ -46,6 +47,62 @@ describe("UserManager", function () {
 
             await expect(userManager.connect(admin).registerUser(user1.address))
                 .to.be.revertedWith("User already registered");
+        });
+    });
+
+    describe("User Deletion", function () {
+        beforeEach(async function () {
+            await userManager.connect(admin).registerUser(user1.address);
+        });
+
+        it("Should allow an admin to delete a user", async function () {
+            await userManager.connect(admin).deleteUser(user1.address);
+
+            const user = await userManager.getUser(user1.address);
+            expect(user.walletAddress).to.equal("0x0000000000000000000000000000000000000000");
+        });
+
+        it("Should not allow a non-admin to delete a user", async function () {
+            await expect(userManager.connect(user1).deleteUser(user1.address))
+                .to.be.revertedWith("Only admin can perform this action");
+        });
+
+        it("Should not allow an admin to delete a non-existent user", async function () {
+            await expect(userManager.connect(admin).deleteUser(user2.address))
+                .to.be.revertedWith("User not registered");
+        });
+    });
+
+    describe("User Update", function () {
+        beforeEach(async function () {
+            await userManager.connect(admin).registerUser(user1.address);
+        });
+
+        it("Should allow an admin to update a user", async function () {
+            await userManager.connect(admin).updateUser(user1.address, user2.address);
+
+            const user1Data = await userManager.getUser(user1.address);
+            expect(user1Data.walletAddress).to.equal("0x0000000000000000000000000000000000000000");
+
+            const user2Data = await userManager.getUser(user2.address);
+            expect(user2Data.walletAddress).to.equal(user2.address);
+            expect(user2Data.userId).to.equal(1);
+        });
+
+        it("Should not allow a non-admin to update a user", async function () {
+            await expect(userManager.connect(user1).updateUser(user1.address, user2.address))
+                .to.be.revertedWith("Only admin can perform this action");
+        });
+
+        it("Should not allow an admin to update a user to an already registered wallet address", async function () {
+            await userManager.connect(admin).registerUser(user2.address);
+            await expect(userManager.connect(admin).updateUser(user1.address, user2.address))
+                .to.be.revertedWith("New wallet address already registered");
+        });
+
+        it("Should not allow an admin to update a non-existent user", async function () {
+            await expect(userManager.connect(admin).updateUser(user2.address, user1.address))
+                .to.be.revertedWith("User not registered");
         });
     });
 
@@ -113,3 +170,4 @@ describe("UserManager", function () {
         });
     });
 });
+
