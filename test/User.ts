@@ -29,18 +29,6 @@ describe("UserManager", function () {
     });
 
     describe("User Registration", function () {
-        it("Should allow an admin to register a user", async function () {
-            await userManager.connect(admin).registerUser(user1.address);
-
-            const user = await userManager.getUser(user1.address);
-            expect(user.walletAddress).to.equal(user1.address);
-            expect(user.userId).to.equal(1);
-        });
-
-        it("Should not allow a user to register themselves", async function () {
-            await expect(userManager.connect(user1).registerUser(user1.address))
-                .to.be.revertedWith("Only admin can perform this action");
-        });
 
         it("Should not allow an admin to register the same user twice", async function () {
             await userManager.connect(admin).registerUser(user1.address);
@@ -131,10 +119,6 @@ describe("UserManager", function () {
                 .to.be.revertedWith("Quest does not exist");
         });
 
-        it("Should not allow a non-admin to register a user for a quest", async function () {
-            await expect(userManager.connect(user1).registerForQuest(user1.address, 1))
-                .to.be.revertedWith("Only admin can perform this action");
-        });
     });
 
     describe("User Information", function () {

@@ -32,7 +32,7 @@ contract UserManager {
         questManager = QuestManager(_questManagerAddress);
     }
 
-    function registerUser(address _walletAddress) external onlyAdmin {
+    function registerUser(address _walletAddress) public {
         require(users[_walletAddress].walletAddress == address(0), "User already registered");
         uint256 userId = nextUserId++;
         users[_walletAddress] = User(userId, _walletAddress, new uint256[](0));
@@ -80,10 +80,12 @@ contract UserManager {
         emit UserUpdated(userId, _newWalletAddress);
     }
 
-    function registerForQuest(address _walletAddress, uint256 _questId) external onlyAdmin {
-        User storage user = users[_walletAddress];
-        require(user.walletAddress != address(0), "User not registered");
+    function registerForQuest(address _walletAddress, uint256 _questId) external {
+        if (users[_walletAddress].walletAddress == address(0)) {
+            registerUser(_walletAddress);
+        }
 
+        User storage user = users[_walletAddress];
         QuestManager.Quest memory quest = questManager.getQuest(_questId);
         require(quest.questId != 0, "Quest does not exist");
 
