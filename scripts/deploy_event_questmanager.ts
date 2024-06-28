@@ -7,12 +7,17 @@ async function main() {
 
   console.log('QuestManager Contract Deployed at ' + qm.target);
 
-  const EventManager = await ethers.deployContract('EventManager', [qm.target]);
+  const eventManager = await ethers.deployContract('EventsManager', [qm.target]);
 
-  await EventManager.waitForDeployment();
+  await eventManager.waitForDeployment();
 
-  console.log('EventManager Contract Deployed at ' + EventManager.target);
+  console.log('EventManager Contract Deployed at ' + eventManager.target);
 
+  const userManager = await ethers.deployContract('UserManager', [qm.target]);
+
+  await userManager.waitForDeployment();
+
+  console.log('UserManager Contract Deployed at ' + userManager.target);
 }
 
 // We recommend this pattern to be able to use async/await everywhere
