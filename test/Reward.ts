@@ -23,10 +23,13 @@ describe("RewardDistribution", function () {
     userManager = await UserManager.deploy(await questManager.getAddress());
     await userManager.waitForDeployment();
 
-    // Deploy RewardDistribution contract with UserManager and QuestManager addresses
+    // Deploy RewardDistribution contract with UserManager address
     RewardDistribution = await ethers.getContractFactory("RewardDistribution");
-    rewardDistribution = await RewardDistribution.deploy(await userManager.getAddress(), await questManager.getAddress());
+    rewardDistribution = await RewardDistribution.deploy(await userManager.getAddress());
     await rewardDistribution.waitForDeployment();
+
+    // Set RewardDistribution address in QuestManager
+    await questManager.setRewardDistributionContract(await rewardDistribution.getAddress());
 
     // Transfer some tokens to the RewardDistribution contract for rewards
     const transferAmount = "1000000000000000000000"; // 1000 MKT in wei
@@ -66,8 +69,8 @@ describe("RewardDistribution", function () {
       // Initially, addr1 has no tokens
       const initialBalance = await mockERC20.balanceOf(addr1.address);
 
-      // Distribute reward
-      await rewardDistribution.distributeReward(1, addr1.address);
+      // Complete the quest, which triggers reward distribution
+      await questManager.completeQuest(1, addr1.address);
 
       // Check reward distribution status
       const isDistributed = await rewardDistribution.isRewardDistributed(1, addr1.address);
@@ -80,12 +83,12 @@ describe("RewardDistribution", function () {
     });
 
     it("Should not distribute reward more than once", async function () {
-      await rewardDistribution.distributeReward(1, addr1.address);
-      await expect(rewardDistribution.distributeReward(1, addr1.address)).to.be.revertedWith("Reward already distributed");
+      await questManager.completeQuest(1, addr1.address);
+      await expect(questManager.completeQuest(1, addr1.address)).to.be.revertedWith("Reward already distributed");
     });
 
     it("Should not distribute reward to unregistered user", async function () {
-      await expect(rewardDistribution.distributeReward(1, addr2.address)).to.be.revertedWith("User not registered");
+      await expect(questManager.completeQuest(1, addr2.address)).to.be.revertedWith("User not registered");
     });
   });
 });

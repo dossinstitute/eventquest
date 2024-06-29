@@ -1,7 +1,8 @@
 const { expect } = require("chai");
 
 describe("EventsManager", function () {
-  let EventsManager, eventManager, owner, addr1, addr2, QuestManager, questManager;
+  let UserManager, userManager, QuestManager, questManager, EventsManager, eventManager, RewardDistribution, rewardDistribution, MockERC20, mockERC20;
+  let owner, addr1, addr2;
 
 	beforeEach(async function () {
 		QuestManager = await ethers.getContractFactory("QuestManager");
@@ -12,12 +13,51 @@ describe("EventsManager", function () {
 		await questManager.waitForDeployment();
 		console.log("EventsManager QuestManager deployed at:", await questManager.getAddress());
 
+	});
+describe("RewardDistribution", function () {
+
+  beforeEach(async function () {
+    [owner, addr1, addr2] = await ethers.getSigners();
+
+    // Deploy MockERC20 contract
+    MockERC20 = await ethers.getContractFactory("MockERC20");
+    mockERC20 = await MockERC20.deploy();
+    await mockERC20.waitForDeployment();
+
+    // Deploy RewardDistribution contract with a placeholder address
+    RewardDistribution = await ethers.getContractFactory("RewardDistribution");
+    rewardDistribution = await RewardDistribution.deploy(ethers.constants.AddressZero);
+    await rewardDistribution.waitForDeployment();
+    console.log("RewardDistribution deployed at:", await rewardDistribution.getAddress());
+
+    // Deploy QuestManager contract with RewardDistribution address
+    QuestManager = await ethers.getContractFactory("QuestManager");
+    questManager = await QuestManager.deploy(await rewardDistribution.getAddress());
+    await questManager.waitForDeployment();
+    console.log("QuestManager deployed at:", await questManager.getAddress());
+
+    // // Deploy UserManager contract with QuestManager address
+    // UserManager = await ethers.getContractFactory("UserManager");
+    // userManager = await UserManager.deploy(await questManager.getAddress());
+    // await userManager.waitForDeployment();
+    // console.log("UserManager deployed at:", await userManager.getAddress());
+
+    // // Set the QuestManager address in RewardDistribution
+    // await rewardDistribution.setQuestManager(await questManager.getAddress());
+
 		EventsManager = await ethers.getContractFactory("EventsManager");
 		console.log("Deploying EventsManager with QuestManager address:", await questManager.getAddress());
 		eventManager = await EventsManager.deploy(await questManager.getAddress());
 		await eventManager.waitForDeployment();
 		console.log("EventsManager deployed at:", await eventManager.getAddress());
-	});
+
+    // Set RewardDistribution address in QuestManager
+    await questManager.setRewardDistributionContract(await rewardDistribution.getAddress());
+
+    // Transfer some tokens to the RewardDistribution contract for rewards
+    const transferAmount = "1000000000000000000000"; // 1000 MKT in wei
+    await mockERC20.transfer(await rewardDistribution.getAddress(), transferAmount);
+  });
 
   describe("Deployment", function () {
     it("Should set the right admin", async function () {
