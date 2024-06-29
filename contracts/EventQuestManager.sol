@@ -116,6 +116,20 @@ contract EventQuestManagement {
         delete events[eventId];
     }
 
+    function listEvents() public view returns (Events[] memory) {
+        Events[] memory eventList = new Events[](eventCounter);
+        uint256 currentIndex = 0;
+
+        for (uint256 i = 1; i <= eventCounter; i++) {
+            if (events[i].eventId != 0) {
+                eventList[currentIndex] = events[i];
+                currentIndex++;
+            }
+        }
+
+        return eventList;
+    }
+
     // Quest CRUD Operations
     function createQuest(string memory name, uint256 defaultInteractions, uint256 defaultStartDate, uint256 defaultEndDate, uint256 defaultRewardAmount) public returns (uint256) {
         questCounter++;
@@ -143,6 +157,20 @@ contract EventQuestManagement {
         delete quests[questId];
     }
 
+    function listQuests() public view returns (Quest[] memory) {
+        Quest[] memory questList = new Quest[](questCounter);
+        uint256 currentIndex = 0;
+
+        for (uint256 i = 1; i <= questCounter; i++) {
+            if (quests[i].questId != 0) {
+                questList[currentIndex] = quests[i];
+                currentIndex++;
+            }
+        }
+
+        return questList;
+    }
+
     // User CRUD Operations
     function createUser(address wallet, string memory role) public returns (uint256) {
         userCounter++;
@@ -165,6 +193,20 @@ contract EventQuestManagement {
     function deleteUser(uint256 userId) public {
         require(users[userId].userId != 0, "User does not exist");
         delete users[userId];
+    }
+
+    function listUsers() public view returns (User[] memory) {
+        User[] memory userList = new User[](userCounter);
+        uint256 currentIndex = 0;
+
+        for (uint256 i = 1; i <= userCounter; i++) {
+            if (users[i].userId != 0) {
+                userList[currentIndex] = users[i];
+                currentIndex++;
+            }
+        }
+
+        return userList;
     }
 
     // Sponsor CRUD Operations
@@ -190,6 +232,20 @@ contract EventQuestManagement {
     function deleteSponsor(uint256 sponsorId) public {
         require(sponsors[sponsorId].sponsorId != 0, "Sponsor does not exist");
         delete sponsors[sponsorId];
+    }
+
+    function listSponsors() public view returns (Sponsor[] memory) {
+        Sponsor[] memory sponsorList = new Sponsor[](sponsorCounter);
+        uint256 currentIndex = 0;
+
+        for (uint256 i = 1; i <= sponsorCounter; i++) {
+            if (sponsors[i].sponsorId != 0) {
+                sponsorList[currentIndex] = sponsors[i];
+                currentIndex++;
+            }
+        }
+
+        return sponsorList;
     }
 
     // QuestEvent CRUD Operations
@@ -221,6 +277,20 @@ contract EventQuestManagement {
         delete questEvents[questEventId];
     }
 
+    function listQuestEvents() public view returns (QuestEvent[] memory) {
+        QuestEvent[] memory questEventList = new QuestEvent[](questEventCounter);
+        uint256 currentIndex = 0;
+
+        for (uint256 i = 1; i <= questEventCounter; i++) {
+            if (questEvents[i].questEventId != 0) {
+                questEventList[currentIndex] = questEvents[i];
+                currentIndex++;
+            }
+        }
+
+        return questEventList;
+    }
+
     // UserQuestEvent CRUD Operations
     function createUserQuestEvent(uint256 questEventId, uint256 userId, uint256 interactions, bool validated, string memory url, bool completed) public returns (uint256) {
         userQuestEventCounter++;
@@ -247,6 +317,20 @@ contract EventQuestManagement {
     function deleteUserQuestEvent(uint256 userQuestEventId) public {
         require(userQuestEvents[userQuestEventId].userQuestEventId != 0, "UserQuestEvent does not exist");
         delete userQuestEvents[userQuestEventId];
+    }
+
+    function listUserQuestEvents() public view returns (UserQuestEvent[] memory) {
+        UserQuestEvent[] memory userQuestEventList = new UserQuestEvent[](userQuestEventCounter);
+        uint256 currentIndex = 0;
+
+        for (uint256 i = 1; i <= userQuestEventCounter; i++) {
+            if (userQuestEvents[i].userQuestEventId != 0) {
+                userQuestEventList[currentIndex] = userQuestEvents[i];
+                currentIndex++;
+            }
+        }
+
+        return userQuestEventList;
     }
 
     // Reward CRUD Operations
@@ -276,6 +360,20 @@ contract EventQuestManagement {
         delete rewards[rewardId];
     }
 
+    function listRewards() public view returns (Reward[] memory) {
+        Reward[] memory rewardList = new Reward[](rewardCounter);
+        uint256 currentIndex = 0;
+
+        for (uint256 i = 1; i <= rewardCounter; i++) {
+            if (rewards[i].rewardId != 0) {
+                rewardList[currentIndex] = rewards[i];
+                currentIndex++;
+            }
+        }
+
+        return rewardList;
+    }
+
     // RewardPool CRUD Operations
     function createRewardPool(uint256 transferAmount, uint256 questEventId, uint256 sponsorId) public returns (uint256) {
         rewardPoolCounter++;
@@ -299,6 +397,20 @@ contract EventQuestManagement {
     function deleteRewardPool(uint256 rewardPoolId) public {
         require(rewardPools[rewardPoolId].rewardPoolId != 0, "RewardPool does not exist");
         delete rewardPools[rewardPoolId];
+    }
+
+    function listRewardPools() public view returns (RewardPool[] memory) {
+        RewardPool[] memory rewardPoolList = new RewardPool[](rewardPoolCounter);
+        uint256 currentIndex = 0;
+
+        for (uint256 i = 1; i <= rewardPoolCounter; i++) {
+            if (rewardPools[i].rewardPoolId != 0) {
+                rewardPoolList[currentIndex] = rewardPools[i];
+                currentIndex++;
+            }
+        }
+
+        return rewardPoolList;
     }
 }
 
