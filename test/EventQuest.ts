@@ -1,3 +1,4 @@
+const { ethers } = require("hardhat");
 const { expect } = require("chai");
 
 describe("EventQuestManagement", function () {
@@ -10,10 +11,10 @@ describe("EventQuestManagement", function () {
   let userQuestEvents;
   let rewards;
   let rewardPools;
-  let deployer;
+	let deployer, user1, user2;
 
   beforeEach(async function () {
-    [deployer] = await ethers.getSigners();
+		[deployer, user1, user2] = await ethers.getSigners();
 
     const Events = await ethers.getContractFactory("Events");
     events = await Events.deploy();
@@ -77,8 +78,8 @@ describe("EventQuestManagement", function () {
   });
 
   it("Should create, update, read, list, and delete a quest", async function () {
-    await quests.createQuest("Test Quest", 10, 1640995200, 1641081600, 1000);
-    await quests.updateQuest(1, "Updated Quest", 20, 1640995201, 1641081601, 2000);
+    await quests.createQuest("Test Quest", "Test Quest Desc", 10, 1640995200, 1641081600, 1000);
+    await quests.updateQuest(1, "Updated Quest", "updated desc", 20, 1640995201, 1641081601, 2000, 1);
     const quest = await quests.readQuest(1);
     expect(quest.name).to.equal("Updated Quest");
     expect(quest.defaultInteractions).to.equal(20);
@@ -206,6 +207,25 @@ describe("EventQuestManagement", function () {
     const sponsorQuestEvents = await eventQuestManagement.getQuestEventsForSponsor(1);
     expect(sponsorQuestEvents.length).to.equal(1);
     expect(sponsorQuestEvents[0].questEventId).to.equal(1);
+  });
+
+  it("Should return the correct user count", async function () {
+    await users.createUser(deployer.address, "admin");
+    await users.createUser(user1.address, "user");
+
+    const userCount = await users.getUserCount();
+    expect(userCount).to.equal(2);
+  });
+
+  it("Should return the correct user by index", async function () {
+    await users.createUser(deployer.address, "admin");
+    await users.createUser(user1.address, "user");
+
+    const user1Data = await users.getUserByIndex(0);
+    expect(user1Data.wallet).to.equal(deployer.address);
+
+    const user2Data = await users.getUserByIndex(1);
+    expect(user2Data.wallet).to.equal(user1.address);
   });
 });
 

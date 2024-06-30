@@ -35,7 +35,14 @@ contract Users {
     }
 
     function listUsers() public view returns (User[] memory) {
-        User[] memory userList = new User[](userCounter);
+        uint256 count = 0;
+        for (uint256 i = 1; i <= userCounter; i++) {
+            if (users[i].userId != 0) {
+                count++;
+            }
+        }
+
+        User[] memory userList = new User[](count);
         uint256 currentIndex = 0;
 
         for (uint256 i = 1; i <= userCounter; i++) {
@@ -46,6 +53,29 @@ contract Users {
         }
 
         return userList;
+    }
+
+    function getUserCount() public view returns (uint256) {
+        uint256 count = 0;
+        for (uint256 i = 1; i <= userCounter; i++) {
+            if (users[i].userId != 0) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    function getUserByIndex(uint256 index) public view returns (User memory) {
+        uint256 count = 0;
+        for (uint256 i = 1; i <= userCounter; i++) {
+            if (users[i].userId != 0) {
+                if (count == index) {
+                    return users[i];
+                }
+                count++;
+            }
+        }
+        revert("Index out of bounds");
     }
 }
 
