@@ -2,19 +2,23 @@
 pragma solidity ^0.8.18;
 
 contract Events {
+    enum Status { Active, Completed }
+
     struct Event {
         uint256 eventId;
         string name;
+        string description;
         uint256 startDate;
         uint256 endDate;
+        Status status;
     }
 
     mapping(uint256 => Event) public events;
     uint256 private eventCounter;
 
-    function createEvent(string memory name, uint256 startDate, uint256 endDate) public returns (uint256) {
+    function createEvent(string memory name, string memory description, uint256 startDate, uint256 endDate) public returns (uint256) {
         eventCounter++;
-        events[eventCounter] = Event(eventCounter, name, startDate, endDate);
+        events[eventCounter] = Event(eventCounter, name, description, startDate, endDate, Status.Active);
         return eventCounter;
     }
 
@@ -23,12 +27,14 @@ contract Events {
         return events[eventId];
     }
 
-    function updateEvent(uint256 eventId, string memory name, uint256 startDate, uint256 endDate) public {
+    function updateEvent(uint256 eventId, string memory name, string memory description, uint256 startDate, uint256 endDate, Status status) public {
         Event storage _event = events[eventId];
         require(_event.eventId != 0, "Event does not exist");
         _event.name = name;
+        _event.description = description;
         _event.startDate = startDate;
         _event.endDate = endDate;
+        _event.status = status;
     }
 
     function deleteEvent(uint256 eventId) public {
@@ -48,6 +54,15 @@ contract Events {
         }
 
         return eventList;
+    }
+
+    function getEventCount() public view returns (uint256) {
+        return eventCounter;
+    }
+
+    function getEventByIndex(uint256 index) public view returns (Event memory) {
+        require(index < eventCounter, "Index out of bounds");
+        return events[index + 1]; // Adjust for 1-based indexing
     }
 }
 

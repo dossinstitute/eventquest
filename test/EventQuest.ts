@@ -62,8 +62,8 @@ describe("EventQuestManagement", function () {
   });
 
   it("Should create, update, read, list, and delete an event", async function () {
-    await events.createEvent("Test Event", 1640995200, 1641081600);
-    await events.updateEvent(1, "Updated Event", 1640995201, 1641081601);
+    await events.createEvent("Test Event", "desc", 1640995200, 1641081600);
+    await events.updateEvent(1, "Updated Event", "desc", 1640995201, 1641081601, 0);
     const event = await events.readEvent(1);
     expect(event.name).to.equal("Updated Event");
     expect(event.startDate).to.equal(1640995201);
