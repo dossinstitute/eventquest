@@ -1,31 +1,68 @@
-import { ethers } from 'hardhat';
-
 async function main() {
-  // Deploy QuestManager contract
-  const qm = await ethers.deployContract('QuestManager');
-  await qm.waitForDeployment();
-  console.log('QuestManager Contract Deployed at ' + qm.target);
+  const [deployer] = await ethers.getSigners();
 
-  // Deploy EventsManager contract with QuestManager address
-  const eventManager = await ethers.deployContract('EventsManager', [qm.target]);
-  await eventManager.waitForDeployment();
-  console.log('EventManager Contract Deployed at ' + eventManager.target);
+  console.log("Deploying contracts with the account:", deployer.address);
 
-  // Deploy UserManager contract with QuestManager address
-  const userManager = await ethers.deployContract('UserManager', [qm.target]);
-  await userManager.waitForDeployment();
-  console.log('UserManager Contract Deployed at ' + userManager.target);
+  const Events = await ethers.getContractFactory("Events");
+  const events = await Events.deploy();
+  await events.deployed();
 
-  // Deploy RewardDistribution contract with UserManager and QuestManager addresses
-  const rewardDistribution = await ethers.deployContract('RewardDistribution', [userManager.target, qm.target]);
-  await rewardDistribution.waitForDeployment();
-  console.log('RewardDistribution Contract Deployed at ' + rewardDistribution.target);
+  const Quests = await ethers.getContractFactory("Quests");
+  const quests = await Quests.deploy();
+  await quests.deployed();
+
+  const Users = await ethers.getContractFactory("Users");
+  const users = await Users.deploy();
+  await users.deployed();
+
+  const Sponsors = await ethers.getContractFactory("Sponsors");
+  const sponsors = await Sponsors.deploy();
+  await sponsors.deployed();
+
+  const QuestEvents = await ethers.getContractFactory("QuestEvents");
+  const questEvents = await QuestEvents.deploy();
+  await questEvents.deployed();
+
+  const RewardPools = await ethers.getContractFactory("RewardPools");
+  const rewardPools = await RewardPools.deploy(questEvents.address);
+  await rewardPools.deployed();
+
+  const UserQuestEvents = await ethers.getContractFactory("UserQuestEvents");
+  const userQuestEvents = await UserQuestEvents.deploy();
+  await userQuestEvents.deployed();
+
+  const Rewards = await ethers.getContractFactory("Rewards");
+  const rewards = await Rewards.deploy();
+  await rewards.deployed();
+
+  const EventQuestManagement = await ethers.getContractFactory("EventQuestManagement");
+  const eventQuestManagement = await EventQuestManagement.deploy(
+    events.address,
+    quests.address,
+    users.address,
+    sponsors.address,
+    questEvents.address,
+    userQuestEvents.address,
+    rewards.address,
+    rewardPools.address
+  );
+  await eventQuestManagement.deployed();
+
+  console.log("Events contract deployed to:", events.address);
+  console.log("Quests contract deployed to:", quests.address);
+  console.log("Users contract deployed to:", users.address);
+  console.log("Sponsors contract deployed to:", sponsors.address);
+  console.log("QuestEvents contract deployed to:", questEvents.address);
+  console.log("UserQuestEvents contract deployed to:", userQuestEvents.address);
+  console.log("Rewards contract deployed to:", rewards.address);
+  console.log("RewardPools contract deployed to:", rewardPools.address);
+  console.log("EventQuestManagement contract deployed to:", eventQuestManagement.address);
 }
 
-// We recommend this pattern to be able to use async/await everywhere
-// and properly handle errors.
-main().catch((error) => {
-  console.error(error);
-  process.exitCode = 1;
-});
+main()
+  .then(() => process.exit(0))
+  .catch(error => {
+    console.error(error);
+    process.exit(1);
+  });
 
