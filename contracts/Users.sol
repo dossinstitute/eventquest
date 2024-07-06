@@ -9,11 +9,13 @@ contract Users {
     }
 
     mapping(uint256 => User) public users;
+    mapping(address => uint256) private walletToUserId;
     uint256 private userCounter;
 
     function createUser(address wallet, string memory role) public returns (uint256) {
         userCounter++;
         users[userCounter] = User(userCounter, wallet, role);
+        walletToUserId[wallet] = userCounter;
         return userCounter;
     }
 
@@ -27,22 +29,24 @@ contract Users {
         require(user.userId != 0, "User does not exist");
         user.wallet = wallet;
         user.role = role;
+        walletToUserId[wallet] = userId;
     }
 
     function deleteUser(uint256 userId) public {
         require(users[userId].userId != 0, "User does not exist");
+        delete walletToUserId[users[userId].wallet];
         delete users[userId];
     }
 
     function listUsers() public view returns (User[] memory) {
-        uint256 count = 0;
+        uint256 activeUserCount = 0;
         for (uint256 i = 1; i <= userCounter; i++) {
             if (users[i].userId != 0) {
-                count++;
+                activeUserCount++;
             }
         }
 
-        User[] memory userList = new User[](count);
+        User[] memory userList = new User[](activeUserCount);
         uint256 currentIndex = 0;
 
         for (uint256 i = 1; i <= userCounter; i++) {
@@ -56,16 +60,11 @@ contract Users {
     }
 
     function getUserCount() public view returns (uint256) {
-        uint256 count = 0;
-        for (uint256 i = 1; i <= userCounter; i++) {
-            if (users[i].userId != 0) {
-                count++;
-            }
-        }
-        return count;
+        return userCounter;
     }
 
     function getUserByIndex(uint256 index) public view returns (User memory) {
+        require(index < userCounter, "Index out of bounds");
         uint256 count = 0;
         for (uint256 i = 1; i <= userCounter; i++) {
             if (users[i].userId != 0) {
@@ -75,7 +74,12 @@ contract Users {
                 count++;
             }
         }
-        revert("Index out of bounds");
+        revert("User at index not found");
+    }
+
+    function getUserIdByWallet(address wallet) public view returns (uint256) {
+        require(walletToUserId[wallet] != 0, "User does not exist");
+        return walletToUserId[wallet];
     }
 }
 

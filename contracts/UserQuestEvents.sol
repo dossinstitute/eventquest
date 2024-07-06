@@ -1,6 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
 
+interface IUser {
+    function getUserIdByWallet(address wallet) external view returns (uint256);
+}
+
 contract UserQuestEvents {
     struct UserQuestEvent {
         uint256 userQuestEventId;
@@ -17,6 +21,7 @@ contract UserQuestEvents {
 
     function createUserQuestEvent(uint256 questEventId, uint256 userId, uint256 interactions, bool validated, string memory url, bool completed) public returns (uint256) {
         userQuestEventCounter++;
+        // if not admin user, only questeventid, user_id, url create/updatable
         userQuestEvents[userQuestEventCounter] = UserQuestEvent(userQuestEventCounter, questEventId, userId, interactions, validated, url, completed);
         return userQuestEventCounter;
     }
@@ -75,6 +80,16 @@ contract UserQuestEvents {
         }
 
         return userQuests;
+    }
+
+    function getUserQuestsByWallet(address wallet, address userContractAddress) public view returns (UserQuestEvent[] memory) {
+        IUser userContract = IUser(userContractAddress);
+        uint256 userId = userContract.getUserIdByWallet(wallet);
+        return getQuestsForUser(userId);
+    }
+
+    function getUserQuestEventCount() public view returns (uint256) {
+        return userQuestEventCounter;
     }
 }
 
