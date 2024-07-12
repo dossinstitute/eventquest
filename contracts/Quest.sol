@@ -135,5 +135,14 @@ abstract contract Quest {
 
         return (ids, contracts);
     }
+
+    /**
+     * @dev Checks if a quest is expired.
+     * @param questId The ID of the quest.
+     * @return True if the quest is expired, false otherwise.
+     */
+    function isQuestExpired(uint256 questId) internal view returns (bool) {
+        return block.timestamp > quests[questId].expirationTime;
+    }
 }
 
