@@ -177,6 +177,25 @@ describe("EventQuestManagement", function () {
     await expect(rewards.readReward(1)).to.be.revertedWith("Reward does not exist");
   });
 
+  it("Should return the correct reward count", async function () {
+    await rewards.createReward(1, 1, 1000, "token", deployer.address);
+    await rewards.createReward(1, 1, 1000, "nft", deployer.address);
+
+    const rewardCount = await rewards.getRewardCount();
+    expect(rewardCount).to.equal(2);
+  });
+
+  it("Should return the correct reward by index", async function () {
+    await rewards.createReward(1, 1, 1000, "token", deployer.address);
+    await rewards.createReward(1, 1, 1000, "nft", deployer.address);
+
+    const reward1Data = await rewards.getRewardByIndex(1);
+    const reward1Datafirst = await rewards.getRewardByIndex(0);
+
+    expect(reward1Data.rewardType).to.equal("nft");
+    expect(reward1Datafirst.rewardType).to.equal("token");
+  });
+
   it("Should create, update, read, list, and delete a reward pool", async function () {
     await questEvents.createQuestEvent(1, 1, 5, 1640995200, 1641081600, 500, "#test");
     await rewardPools.createRewardPool(1000, 1, 1);
