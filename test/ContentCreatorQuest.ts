@@ -54,7 +54,7 @@ describe("ContentCreatorQuest", function () {
       ["string", "string[]"],
       ["http://example.com", ["#example", "#test"]]
     );
-    await expect(contentCreatorQuest.interact(1, user1.address, "submit", contentData))
+    await expect(contentCreatorQuest.connect(user1).interact(1, user1.address, "submit", contentData))
       .to.emit(contentCreatorQuest, "ContentSubmitted")
       .withArgs(1, user1.address, "http://example.com", ["#example", "#test"]);
 
@@ -75,7 +75,7 @@ describe("ContentCreatorQuest", function () {
       ["http://example.com", ["#wrong"]]
     );
 
-    await expect(contentCreatorQuest.interact(1, user1.address, "submit", contentData))
+    await expect(contentCreatorQuest.connect(user1).interact(1, user1.address, "submit", contentData))
       .to.be.revertedWith("Required hashtags are missing.");
   });
 
@@ -98,9 +98,9 @@ describe("ContentCreatorQuest", function () {
       ["http://example3.com", ["#example", "#test"]]
     );
 
-    await contentCreatorQuest.interact(1, user1.address, "submit", contentData1);
-    await contentCreatorQuest.interact(1, user1.address, "submit", contentData2);
-    await expect(contentCreatorQuest.interact(1, user1.address, "submit", contentData3))
+    await contentCreatorQuest.connect(user1).interact(1, user1.address, "submit", contentData1);
+    await contentCreatorQuest.connect(user1).interact(1, user1.address, "submit", contentData2);
+    await expect(contentCreatorQuest.connect(user1).interact(1, user1.address, "submit", contentData3))
       .to.emit(contentCreatorQuest, "ContentSubmitted")
       .withArgs(1, user1.address, "http://example3.com", ["#example", "#test"]);
 

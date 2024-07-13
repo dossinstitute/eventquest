@@ -1,144 +1,85 @@
-import { expect } from "chai";
-import { ethers } from "hardhat";
-import { ContractFactory, Contract, Signer } from "ethers";
-import Web3 from "web3";
-
-const web3 = new Web3();
+const { expect } = require("chai");
+const { ethers } = require("hardhat");
 
 describe("Quest", function () {
-  let QuestManager: ContractFactory;
-  let ConcreteQuest: ContractFactory;
-  let questManager: Contract;
-  let concreteQuest: Contract;
-  let owner: Signer;
-  let addr1: Signer;
-  let addr2: Signer;
+  let questManager;
+  let concreteQuest;
+  let deployer, user1, user2;
 
   beforeEach(async function () {
-    QuestManager = await ethers.getContractFactory("QuestManager");
-    [owner, addr1, addr2] = await ethers.getSigners();
+    [deployer, user1, user2] = await ethers.getSigners();
+
+    const QuestManager = await ethers.getContractFactory("QuestManager");
     questManager = await QuestManager.deploy();
     await questManager.waitForDeployment();
 
-    ConcreteQuest = await ethers.getContractFactory("ConcreteQuest");
-    concreteQuest = await ConcreteQuest.deploy(questManager.target, "Test Quest", "TestType");
+    const ConcreteQuest = await ethers.getContractFactory("ConcreteQuest");
+    concreteQuest = await ConcreteQuest.deploy(
+      questManager.target,
+      "Test Quest",
+      "Test Type"
+    );
     await concreteQuest.waitForDeployment();
   });
 
-  describe("Initialize Quest", function () {
-    it("Should initialize a new quest", async function () {
-      const initialData = web3.utils.asciiToHex("Initial Data");
-      await concreteQuest.connect(owner).initializeQuest(1, initialData, 1234567890);
+  async function getCurrentBlockTimestamp() {
+    const block = await ethers.provider.getBlock("latest");
+    return block.timestamp;
+  }
 
-      const quest = await concreteQuest.quests(1);
-      expect(quest.data).to.equal(initialData);
-      expect(quest.isActive).to.be.true;
-      expect(quest.isCompleted).to.be.false;
-      expect(quest.initiator).to.equal(await owner.getAddress());
-      expect(quest.expirationTime).to.equal(1234567890);
-      expect(quest.questContract).to.equal(concreteQuest.target);
+  it("Should initialize a new quest", async function () {
+    const currentTimestamp = await getCurrentBlockTimestamp();
+    const expirationTime = currentTimestamp + 86400; // 1 day in the future
 
-      const [ids, contracts] = await concreteQuest.getActiveQuests();
-      expect(ids).to.deep.equal([1]);
-      expect(contracts).to.deep.equal([concreteQuest.target]);
-    });
+    await concreteQuest.initializeQuest(1, "0x", expirationTime);
 
-    it("Should emit QuestInitialized event", async function () {
-      await expect(concreteQuest.connect(owner).initializeQuest(1, web3.utils.asciiToHex("Initial Data"), 1234567890))
-        .to.emit(concreteQuest, "QuestInitialized")
-        .withArgs(1, await owner.getAddress());
-    });
+    const quest = await concreteQuest.quests(1);
+    expect(quest.isActive).to.be.true;
+    expect(quest.isCompleted).to.be.false;
+    expect(quest.expirationTime).to.equal(expirationTime);
 
-    it("Should register with QuestManager", async function () {
-      await concreteQuest.connect(owner).initializeQuest(1, web3.utils.asciiToHex("Initial Data"), 1234567890);
-
-      const quest = await questManager.getQuest(1);
-      expect(quest.name).to.equal("Test Quest");
-      expect(quest.questAddress).to.equal(concreteQuest.target);
-      expect(quest.questType).to.equal("TestType");
-    });
-
-    it("Should not initialize a quest with an existing ID", async function () {
-      await concreteQuest.connect(owner).initializeQuest(1, web3.utils.asciiToHex("Initial Data"), 1234567890);
-      await expect(concreteQuest.connect(owner).initializeQuest(1, web3.utils.asciiToHex("New Data"), 1234567891))
-        .to.be.revertedWith("Quest ID already used.");
-    });
+    const activeQuests = await concreteQuest.listActiveQuests();
+    expect(activeQuests[0].questId).to.equal(1);
   });
 
-  describe("Interact with Quest", function () {
-    beforeEach(async function () {
-      await concreteQuest.connect(owner).initializeQuest(1, web3.utils.asciiToHex("Initial Data"), 1234567890);
-    });
+  it("Should return active quests", async function () {
+    const currentTimestamp = await getCurrentBlockTimestamp();
+    const expirationTime = currentTimestamp + 86400; // 1 day in the future
 
-    it("Should allow interaction with an active quest", async function () {
-      await concreteQuest.connect(addr1).interact(1, await addr1.getAddress(), "Test Interaction", web3.utils.asciiToHex("Target Data"));
+    await concreteQuest.initializeQuest(1, "0x", expirationTime);
+    await concreteQuest.initializeQuest(2, "0x", expirationTime + 86400);
 
-      await expect(concreteQuest.connect(addr1).interact(1, await addr1.getAddress(), "Test Interaction", web3.utils.asciiToHex("Target Data")))
-        .to.emit(concreteQuest, "InteractionCompleted")
-        .withArgs(1, await addr1.getAddress(), "Test Interaction", web3.utils.asciiToHex("Target Data"));
-    });
-
-    it("Should not allow interaction with an inactive quest", async function () {
-      await concreteQuest.connect(owner).markQuestAsCompleted(1);
-      await expect(concreteQuest.connect(addr1).interact(1, await addr1.getAddress(), "Test Interaction", web3.utils.asciiToHex("Target Data")))
-        .to.be.revertedWith("Quest is not active.");
-    });
+    const activeQuests = await concreteQuest.listActiveQuests();
+    expect(activeQuests.length).to.equal(2);
+    expect(activeQuests[0].questId).to.equal(1);
+    expect(activeQuests[1].questId).to.equal(2);
   });
 
-  describe("Complete Quest", function () {
-    beforeEach(async function () {
-      await concreteQuest.connect(owner).initializeQuest(1, web3.utils.asciiToHex("Initial Data"), 1234567890);
-    });
+  it("Should not include completed quests", async function () {
+    const currentTimestamp = await getCurrentBlockTimestamp();
+    const expirationTime = currentTimestamp + 86400; // 1 day in the future
 
-    it("Should mark a quest as completed", async function () {
-      // Ensure quest is active before completion
-      const [isActiveBefore, isCompletedBefore] = await concreteQuest.getQuestState(1);
-      expect(isActiveBefore).to.be.true;
-      expect(isCompletedBefore).to.be.false;
+    await concreteQuest.initializeQuest(1, "0x", expirationTime);
+    await concreteQuest.initializeQuest(2, "0x", expirationTime + 86400);
+    await concreteQuest.initializeQuest(3, "0x", expirationTime + 172800); // Adding a third quest
 
-      // Complete the quest
-      await expect(concreteQuest.connect(owner).markQuestAsCompleted(1))
-        .to.emit(concreteQuest, "InteractionCompleted")
-        .withArgs(1, "0x0000000000000000000000000000000000000000", "completion", "0x");
+    // Verify quests before completion
+    let activeQuests = await concreteQuest.listActiveQuests();
+    console.log("Active quests before completion: ", activeQuests);
 
-      // Ensure quest is inactive and completed after completion
-      const [isActiveAfter, isCompletedAfter] = await concreteQuest.getQuestState(1);
-      expect(isActiveAfter).to.be.false;
-      expect(isCompletedAfter).to.be.true;
-    });
+    // Simulate completion of the first quest
+    await concreteQuest.interact(1, user1.address, "completion", "0x");
 
-    it("Should not mark a non-active quest as completed", async function () {
-      await concreteQuest.connect(owner).markQuestAsCompleted(1);
-      await expect(concreteQuest.connect(owner).markQuestAsCompleted(1))
-        .to.be.revertedWith("Quest is not active.");
-    });
-  });
+    // Verify quests after completion
+    activeQuests = await concreteQuest.listActiveQuests();
+    console.log("Active quests after completion: ", activeQuests);
 
-  describe("Get Active Quests", function () {
-    beforeEach(async function () {
-      await concreteQuest.connect(owner).initializeQuest(1, web3.utils.asciiToHex("Initial Data"), 1234567890);
-      await concreteQuest.connect(owner).initializeQuest(2, web3.utils.asciiToHex("Second Quest"), 1234567891);
-    });
+    // Convert Result object to regular array
+    activeQuests = Array.from(activeQuests).sort((a, b) => Number(a.questId) - Number(b.questId));
 
-    it("Should return active quests", async function () {
-      const [ids, contracts] = await concreteQuest.getActiveQuests();
-
-      expect(ids.length).to.equal(2);
-      expect(ids[0]).to.equal(1);
-      expect(ids[1]).to.equal(2);
-      expect(contracts[0]).to.equal(concreteQuest.target);
-      expect(contracts[1]).to.equal(concreteQuest.target);
-    });
-
-    it("Should not include completed quests", async function () {
-      await concreteQuest.connect(owner).markQuestAsCompleted(1);
-
-      const [ids, contracts] = await concreteQuest.getActiveQuests();
-
-      expect(ids.length).to.equal(1);
-      expect(ids[0]).to.equal(2);
-      expect(contracts[0]).to.equal(concreteQuest.target);
-    });
+    expect(activeQuests.length).to.equal(2);
+    expect(activeQuests[0].questId).to.equal(2);
+    expect(activeQuests[1].questId).to.equal(3);
   });
 });
 

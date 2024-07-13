@@ -18,6 +18,7 @@ contract ContentCreatorQuest is Quest {
 
     /// @notice Structure to hold content submission data.
     struct ContentSubmission {
+        address participant;
         string contentUrl;
         string[] hashtags;
     }
@@ -94,6 +95,7 @@ contract ContentCreatorQuest is Quest {
 
         userSubmissions[questId][participant]++;
         contentSubmissions[questId].push(ContentSubmission({
+            participant: participant,
             contentUrl: contentUrl,
             hashtags: hashtags
         }));
@@ -102,14 +104,28 @@ contract ContentCreatorQuest is Quest {
         emit ContentSubmitted(questId, participant, contentUrl, hashtags);
 
         if (userSubmissions[questId][participant] >= minSubmissions) {
-            completeQuest(questId);
+            completeQuestForParticipant(questId, participant);
         }
+    }
+
+    /**
+     * @dev Completes the quest for a specific participant.
+     * @param questId The ID of the quest.
+     * @param participant The address of the participant.
+     */
+    function completeQuestForParticipant(uint256 questId, address participant) internal {
+        if (!quests[questId].isCompleted) {
+            quests[questId].isCompleted = true;
+            quests[questId].isActive = false;
+        }
+        userQuests[questId][participant] = true;
+        emit InteractionCompleted(questId, participant, "completion", "");
     }
 
     /**
      * @dev Returns the list of content submissions for a specific quest.
      * @param questId The ID of the quest.
-     * @return An array of content submissions.
+     * @return ContentSubmission[] An array of content submissions.
      */
     function getContentSubmissions(uint256 questId) public view returns (ContentSubmission[] memory) {
         return contentSubmissions[questId];

@@ -27,6 +27,7 @@ abstract contract Quest {
 
     /// @notice Structure to hold quest information.
     struct QuestInfo {
+        uint256 questId;  // Add questId here
         bytes data;
         bool isActive;
         bool isCompleted;
@@ -35,11 +36,16 @@ abstract contract Quest {
         address questContract;
     }
 
-    /// @notice Array to store active quest IDs.
-    uint256[] public activeQuestIds;
-
     /// @notice Mapping to store quest information.
     mapping(uint256 => QuestInfo) public quests;
+    uint256[] public questIds;
+
+    /// @notice List of active quest IDs.
+    uint256[] public activeQuestIds;
+
+    /// @notice Mapping to store user information within each quest.
+    mapping(uint256 => mapping(address => bool)) public userQuests;
+    address[] public users;
 
     /**
      * @dev Initializes the Quest contract with the QuestManager address.
@@ -62,15 +68,16 @@ abstract contract Quest {
     function initializeQuest(uint256 questId, bytes memory data, uint256 expirationTime) public virtual {
         require(quests[questId].questContract == address(0), "Quest ID already used.");
 
-        quests[questId] = QuestInfo({
-            data: data,
-            isActive: true,
-            isCompleted: false,
-            initiator: msg.sender,
-            expirationTime: expirationTime,
-            questContract: address(this)
-        });
+        QuestInfo storage newQuest = quests[questId];
+        newQuest.questId = questId;  // Add this line
+        newQuest.data = data;
+        newQuest.isActive = true;
+        newQuest.isCompleted = false;
+        newQuest.initiator = msg.sender;
+        newQuest.expirationTime = expirationTime;
+        newQuest.questContract = address(this);
 
+        questIds.push(questId);
         activeQuestIds.push(questId);
 
         // Register with QuestManager
@@ -93,7 +100,6 @@ abstract contract Quest {
      * @param questId The ID of the quest to be marked as completed.
      */
     function completeQuest(uint256 questId) internal virtual {
-        require(quests[questId].isActive, "Quest is not active.");
         quests[questId].isCompleted = true;
         quests[questId].isActive = false;
 
@@ -121,28 +127,115 @@ abstract contract Quest {
     }
 
     /**
-     * @dev Returns the list of active quest IDs and their respective contracts.
-     * @return An array of tuples containing quest IDs and quest contract addresses.
+     * @dev Returns true if the quest is expired.
+     * @param questId The ID of the quest.
+     * @return bool True if the quest is expired.
      */
-    function getActiveQuests() public view returns (uint256[] memory, address[] memory) {
-        uint256[] memory ids = new uint256[](activeQuestIds.length);
-        address[] memory contracts = new address[](activeQuestIds.length);
-
-        for (uint256 i = 0; i < activeQuestIds.length; i++) {
-            ids[i] = activeQuestIds[i];
-            contracts[i] = quests[activeQuestIds[i]].questContract;
-        }
-
-        return (ids, contracts);
+    function isQuestExpired(uint256 questId) public view returns (bool) {
+        return block.timestamp > quests[questId].expirationTime;
     }
 
     /**
-     * @dev Checks if a quest is expired.
-     * @param questId The ID of the quest.
-     * @return True if the quest is expired, false otherwise.
+     * @dev Returns the count of quests.
+     * @return uint256 The count of quests.
      */
-    function isQuestExpired(uint256 questId) internal view returns (bool) {
-        return block.timestamp > quests[questId].expirationTime;
+    function getQuestCount() public view returns (uint256) {
+        return questIds.length;
+    }
+
+    /**
+     * @dev Returns the quest ID by index.
+     * @param index The index of the quest.
+     * @return uint256 The ID of the quest.
+     */
+    function getQuestByIndex(uint256 index) public view returns (uint256) {
+        require(index < questIds.length, "Index out of bounds");
+        return questIds[index];
+    }
+
+    /**
+     * @dev Returns the list of all quests.
+     * @return QuestInfo[] The list of all quests.
+     */
+    function listQuests() public view returns (QuestInfo[] memory) {
+        QuestInfo[] memory allQuests = new QuestInfo[](questIds.length);
+        for (uint256 i = 0; i < questIds.length; i++) {
+            allQuests[i] = quests[questIds[i]];
+        }
+        return allQuests;
+    }
+
+    /**
+     * @dev Returns the count of active quests.
+     * @return uint256 The count of active quests.
+     */
+    function getActiveQuestCount() public view returns (uint256) {
+        return activeQuestIds.length;
+    }
+
+    /**
+     * @dev Returns the active quest ID by index.
+     * @param index The index of the active quest.
+     * @return uint256 The ID of the active quest.
+     */
+    function getActiveQuestByIndex(uint256 index) public view returns (uint256) {
+        require(index < activeQuestIds.length, "Index out of bounds");
+        return activeQuestIds[index];
+    }
+
+    /**
+     * @dev Returns the list of all active quests.
+     * @return QuestInfo[] The list of all active quests.
+     */
+    function listActiveQuests() public view returns (QuestInfo[] memory) {
+        QuestInfo[] memory activeQuests = new QuestInfo[](activeQuestIds.length);
+        for (uint256 i = 0; i < activeQuestIds.length; i++) {
+            activeQuests[i] = quests[activeQuestIds[i]];
+        }
+        return activeQuests;
+    }
+
+    /**
+     * @dev Registers a user to a quest.
+     * @param questId The ID of the quest.
+     * @param user The address of the user.
+     */
+    function registerUser(uint256 questId, address user) public {
+        require(quests[questId].questContract != address(0), "Quest ID does not exist.");
+        require(!userQuests[questId][user], "User already registered for this quest.");
+
+        userQuests[questId][user] = true;
+        users.push(user);
+    }
+
+    /**
+     * @dev Returns the count of users.
+     * @return uint256 The count of users.
+     */
+    function getUserCount() public view returns (uint256) {
+        return users.length;
+    }
+
+    /**
+     * @dev Returns the user by index.
+     * @param index The index of the user.
+     * @return address The address of the user.
+     */
+    function getUserByIndex(uint256 index) public view returns (address) {
+        require(index < users.length, "Index out of bounds");
+        return users[index];
+    }
+
+    /**
+     * @dev Returns the list of all users.
+     * @return address[] The list of all users.
+     */
+    function listUsers() public view returns (address[] memory) {
+        address[] memory allUsers = new address[](users.length);
+        for (uint256 i = 0; i < users.length; i++) {
+            allUsers[i] = users[i];
+        }
+        return allUsers;
     }
 }
 
