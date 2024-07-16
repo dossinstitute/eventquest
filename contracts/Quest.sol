@@ -8,7 +8,7 @@ import "./IQuestManager.sol";
  * @dev This is an abstract contract for generic quest functionalities, handling various interaction types and target datasets.
  */
 abstract contract Quest {
-    
+
     /// @notice Event emitted when a quest is initialized.
     /// @param questId The ID of the quest.
     /// @param questInitiator The address of the quest initiator.
@@ -21,14 +21,22 @@ abstract contract Quest {
     /// @param target The target of the interaction.
     event InteractionCompleted(uint256 questId, address indexed participant, string interactionType, bytes target);
 
+    // Debugging events
+    event Debug(string message);
+    event DebugAddress(address addr);
+    event DebugUint256(uint256 value);
+    event DebugBool(bool value);
+    event DebugString(string value);
+
     IQuestManager public questManager;
     string public questName;
     string public questType;
 
     /// @notice Structure to hold quest information.
     struct QuestInfo {
-        uint256 questId;  // Add questId here
+        uint256 questId;
         bytes data;
+        bool isInitialized;
         bool isActive;
         bool isCompleted;
         address initiator;
@@ -66,11 +74,12 @@ abstract contract Quest {
      * @param expirationTime The expiration time for the quest.
      */
     function initializeQuest(uint256 questId, bytes memory data, uint256 expirationTime) public virtual {
-        require(quests[questId].questContract == address(0), "Quest ID already used.");
+        require(!quests[questId].isInitialized, "Quest is already initialized.");
 
         QuestInfo storage newQuest = quests[questId];
-        newQuest.questId = questId;  // Add this line
+        newQuest.questId = questId;
         newQuest.data = data;
+        newQuest.isInitialized = true;
         newQuest.isActive = true;
         newQuest.isCompleted = false;
         newQuest.initiator = msg.sender;
@@ -79,6 +88,12 @@ abstract contract Quest {
 
         questIds.push(questId);
         activeQuestIds.push(questId);
+
+        // Debugging statements
+        emit DebugUint256(questId);
+        emit DebugAddress(msg.sender);
+        emit DebugBool(newQuest.isActive);
+        emit DebugBool(newQuest.isCompleted);
 
         // Register with QuestManager
         questManager.registerQuest(questId, questName, address(this), questType);
@@ -102,6 +117,11 @@ abstract contract Quest {
     function completeQuest(uint256 questId) internal virtual {
         quests[questId].isCompleted = true;
         quests[questId].isActive = false;
+
+        // Debugging statements
+        emit DebugUint256(questId);
+        emit DebugBool(quests[questId].isActive);
+        emit DebugBool(quests[questId].isCompleted);
 
         // Remove from activeQuestIds
         for (uint256 i = 0; i < activeQuestIds.length; i++) {

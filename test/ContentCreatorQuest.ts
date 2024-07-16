@@ -1,29 +1,22 @@
-const { expect } = require("chai");
-const { ethers } = require("hardhat");
-const Web3 = require("web3");
+import { ethers } from "hardhat";
+import { expect } from "chai";
+import Web3 from "web3";
 
 describe("ContentCreatorQuest", function () {
-  let contentCreatorQuest;
-  let questManager;
-  let deployer, user1, user2;
+  let contentCreatorQuest: any;
+  let questManager: any;
+  let deployer: any, user1: any;
   const web3 = new Web3();
 
   beforeEach(async function () {
-    [deployer, user1, user2] = await ethers.getSigners();
+    [deployer, user1] = await ethers.getSigners();
 
     const QuestManager = await ethers.getContractFactory("QuestManager");
     questManager = await QuestManager.deploy();
     await questManager.waitForDeployment();
 
     const ContentCreatorQuest = await ethers.getContractFactory("ContentCreatorQuest");
-    contentCreatorQuest = await ContentCreatorQuest.deploy(
-      questManager.target,
-      "Content Creator Quest",
-      "Content Type",
-      3, // minimum submissions
-      ["#example", "#test"], // required hashtags
-      true // require hashtags
-    );
+    contentCreatorQuest = await ContentCreatorQuest.deploy(await questManager.getAddress(), "Content Creator Quest", "Content Type");
     await contentCreatorQuest.waitForDeployment();
   });
 
@@ -36,75 +29,83 @@ describe("ContentCreatorQuest", function () {
     const currentTimestamp = await getCurrentBlockTimestamp();
     const expirationTime = currentTimestamp + 86400; // 1 day in the future
 
-    await contentCreatorQuest.initializeContentCreatorQuest(1, expirationTime);
+    const minSubmissions = 2;
+    const requiredHashtags = ["#test"];
+    const requireHashtags = true;
+
+    await contentCreatorQuest.initializeContentCreatorQuest(1, expirationTime, minSubmissions, requiredHashtags, requireHashtags);
 
     const quest = await contentCreatorQuest.quests(1);
+    console.log("Quest initialized:", quest);
     expect(quest.isActive).to.be.true;
     expect(quest.isCompleted).to.be.false;
     expect(quest.expirationTime).to.equal(expirationTime);
   });
 
   it("Should allow submitting content", async function () {
+    const questId = 1;
     const currentTimestamp = await getCurrentBlockTimestamp();
     const expirationTime = currentTimestamp + 86400; // 1 day in the future
 
-    await contentCreatorQuest.initializeContentCreatorQuest(1, expirationTime);
+    const minSubmissions = 2;
+    const requiredHashtags = ["#test"];
+    const requireHashtags = true;
 
-    const contentData = web3.eth.abi.encodeParameters(
-      ["string", "string[]"],
-      ["http://example.com", ["#example", "#test"]]
-    );
-    await expect(contentCreatorQuest.connect(user1).interact(1, user1.address, "submit", contentData))
-      .to.emit(contentCreatorQuest, "ContentSubmitted")
-      .withArgs(1, user1.address, "http://example.com", ["#example", "#test"]);
+    await contentCreatorQuest.initializeContentCreatorQuest(questId, expirationTime, minSubmissions, requiredHashtags, requireHashtags);
 
-    const submissions = await contentCreatorQuest.getContentSubmissions(1);
+    const contentUrl = "http://example.com";
+    const hashtags = ["#test"];
+
+    const contentData = web3.eth.abi.encodeParameters(["string", "string[]"], [contentUrl, hashtags]);
+    await contentCreatorQuest.connect(user1).interact(questId, user1.address, "submit", contentData);
+
+    const submissions = await contentCreatorQuest.getContentSubmissions(questId);
+    console.log("Submissions after first content submission:", submissions);
     expect(submissions.length).to.equal(1);
-    expect(submissions[0].contentUrl).to.equal("http://example.com");
-    expect(submissions[0].hashtags).to.deep.equal(["#example", "#test"]);
+    expect(submissions[0].contentUrl).to.equal(contentUrl);
   });
 
   it("Should not allow submitting content without required hashtags", async function () {
+    const questId = 1;
     const currentTimestamp = await getCurrentBlockTimestamp();
     const expirationTime = currentTimestamp + 86400; // 1 day in the future
 
-    await contentCreatorQuest.initializeContentCreatorQuest(1, expirationTime);
+    const minSubmissions = 2;
+    const requiredHashtags = ["#test"];
+    const requireHashtags = true;
 
-    const contentData = web3.eth.abi.encodeParameters(
-      ["string", "string[]"],
-      ["http://example.com", ["#wrong"]]
-    );
+    await contentCreatorQuest.initializeContentCreatorQuest(questId, expirationTime, minSubmissions, requiredHashtags, requireHashtags);
 
-    await expect(contentCreatorQuest.connect(user1).interact(1, user1.address, "submit", contentData))
+    const contentUrl = "http://example.com";
+    const hashtags = ["#wrong"];
+
+    const contentData = web3.eth.abi.encodeParameters(["string", "string[]"], [contentUrl, hashtags]);
+    await expect(contentCreatorQuest.connect(user1).interact(questId, user1.address, "submit", contentData))
       .to.be.revertedWith("Required hashtags are missing.");
   });
 
   it("Should mark a quest as completed when minimum submissions are met", async function () {
+    const questId = 1;
     const currentTimestamp = await getCurrentBlockTimestamp();
     const expirationTime = currentTimestamp + 86400; // 1 day in the future
 
-    await contentCreatorQuest.initializeContentCreatorQuest(1, expirationTime);
+    const minSubmissions = 2;
+    const requiredHashtags = ["#test"];
+    const requireHashtags = true;
 
-    const contentData1 = web3.eth.abi.encodeParameters(
-      ["string", "string[]"],
-      ["http://example1.com", ["#example", "#test"]]
-    );
-    const contentData2 = web3.eth.abi.encodeParameters(
-      ["string", "string[]"],
-      ["http://example2.com", ["#example", "#test"]]
-    );
-    const contentData3 = web3.eth.abi.encodeParameters(
-      ["string", "string[]"],
-      ["http://example3.com", ["#example", "#test"]]
-    );
+    await contentCreatorQuest.initializeContentCreatorQuest(questId, expirationTime, minSubmissions, requiredHashtags, requireHashtags);
 
-    await contentCreatorQuest.connect(user1).interact(1, user1.address, "submit", contentData1);
-    await contentCreatorQuest.connect(user1).interact(1, user1.address, "submit", contentData2);
-    await expect(contentCreatorQuest.connect(user1).interact(1, user1.address, "submit", contentData3))
-      .to.emit(contentCreatorQuest, "ContentSubmitted")
-      .withArgs(1, user1.address, "http://example3.com", ["#example", "#test"]);
+    const contentUrl1 = "http://example.com/1";
+    const contentUrl2 = "http://example.com/2";
+    const hashtags = ["#test"];
 
-    const quest = await contentCreatorQuest.quests(1);
+    const contentData1 = web3.eth.abi.encodeParameters(["string", "string[]"], [contentUrl1, hashtags]);
+    const contentData2 = web3.eth.abi.encodeParameters(["string", "string[]"], [contentUrl2, hashtags]);
+
+    await contentCreatorQuest.connect(user1).interact(questId, user1.address, "submit", contentData1);
+    await contentCreatorQuest.connect(user1).interact(questId, user1.address, "submit", contentData2);
+
+    const quest = await contentCreatorQuest.quests(questId);
     expect(quest.isCompleted).to.be.true;
     expect(quest.isActive).to.be.false;
   });

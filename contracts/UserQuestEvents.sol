@@ -16,13 +16,25 @@ contract UserQuestEvents {
         bool completed;
     }
 
+    event UserQuestEventCreated(
+        uint256 indexed userQuestEventId,
+        uint256 indexed questEventId,
+        uint256 indexed userId,
+        uint256 interactions,
+        bool validated,
+        string url,
+        bool completed
+    );
+
     mapping(uint256 => UserQuestEvent) public userQuestEvents;
     uint256 private userQuestEventCounter;
 
     function createUserQuestEvent(uint256 questEventId, uint256 userId, uint256 interactions, bool validated, string memory url, bool completed) public returns (uint256) {
         userQuestEventCounter++;
-        // if not admin user, only questeventid, user_id, url create/updatable
         userQuestEvents[userQuestEventCounter] = UserQuestEvent(userQuestEventCounter, questEventId, userId, interactions, validated, url, completed);
+        
+        emit UserQuestEventCreated(userQuestEventCounter, questEventId, userId, interactions, validated, url, completed);
+        
         return userQuestEventCounter;
     }
 

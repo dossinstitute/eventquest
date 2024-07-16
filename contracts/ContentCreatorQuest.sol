@@ -27,10 +27,7 @@ contract ContentCreatorQuest is Quest {
     mapping(uint256 => ContentSubmission[]) public contentSubmissions;
     mapping(uint256 => mapping(address => uint256)) public userSubmissions;
 
-    /// @notice Minimum number of submissions required to complete the quest.
     uint256 public minSubmissions;
-
-    /// @notice Required hashtags for the content.
     string[] public requiredHashtags;
     bool public requireHashtags;
 
@@ -39,25 +36,35 @@ contract ContentCreatorQuest is Quest {
      * @param _questManager The address of the QuestManager contract.
      * @param _questName The name of the quest.
      * @param _questType The type of the quest.
-     * @param _minSubmissions The minimum number of submissions required to complete the quest.
-     * @param _requiredHashtags The required hashtags for the content.
-     * @param _requireHashtags Whether hashtags are required for the content.
      */
-    constructor(address _questManager, string memory _questName, string memory _questType, uint256 _minSubmissions, string[] memory _requiredHashtags, bool _requireHashtags) 
-        Quest(_questManager, _questName, _questType) 
-    {
-        minSubmissions = _minSubmissions;
-        requiredHashtags = _requiredHashtags;
-        requireHashtags = _requireHashtags;
-    }
+    constructor(address _questManager, string memory _questName, string memory _questType)
+        Quest(_questManager, _questName, _questType) {}
 
     /**
      * @dev Initializes a new ContentCreator quest.
      * @param questId The ID of the quest to be initialized.
      * @param expirationTime The expiration time for the quest.
+     * @param _minSubmissions The minimum number of submissions required to complete the quest.
+     * @param _requiredHashtags The required hashtags for the content.
+     * @param _requireHashtags Whether hashtags are required for the content.
      */
-    function initializeContentCreatorQuest(uint256 questId, uint256 expirationTime) public {
+    function initializeContentCreatorQuest(
+        uint256 questId,
+        uint256 expirationTime,
+        uint256 _minSubmissions,
+        string[] memory _requiredHashtags,
+        bool _requireHashtags
+    ) public {
+        require(expirationTime > block.timestamp, "Expiration time must be in the future.");
+        require(_minSubmissions > 0, "Minimum submissions must be greater than zero.");
+        require(!quests[questId].isInitialized, "Quest is already initialized.");
+
         initializeQuest(questId, "", expirationTime);
+        minSubmissions = _minSubmissions;
+        requiredHashtags = _requiredHashtags;
+        requireHashtags = _requireHashtags;
+
+        emit Debug("ContentCreatorQuest initialized");
     }
 
     /**
@@ -68,12 +75,27 @@ contract ContentCreatorQuest is Quest {
      * @param target The target content URL and hashtags being interacted with.
      */
     function interact(uint256 questId, address participant, string memory interactionType, bytes memory target) public override {
+        emit Debug("Interaction started");
+        emit DebugUint256(questId);
+        emit DebugAddress(participant);
+        emit DebugString(interactionType);
+
         require(keccak256(abi.encodePacked(interactionType)) == keccak256(abi.encodePacked("submit")), "Invalid interaction type.");
+        emit Debug("Interaction type validated");
+
         require(quests[questId].isActive, "Quest is not active.");
+        emit Debug("Quest is active");
+
         require(!isQuestExpired(questId), "Quest has expired.");
-        
+        emit Debug("Quest is not expired");
+
         (string memory contentUrl, string[] memory hashtags) = abi.decode(target, (string, string[]));
+        emit Debug("Target decoded");
+        emit DebugString(contentUrl);
+        emit DebugUint256(hashtags.length);
+
         require(bytes(contentUrl).length > 0, "Content URL cannot be empty.");
+        emit Debug("Content URL is valid");
 
         if (requireHashtags) {
             bool allHashtagsPresent = true;
@@ -91,6 +113,7 @@ contract ContentCreatorQuest is Quest {
                 }
             }
             require(allHashtagsPresent, "Required hashtags are missing.");
+            emit Debug("Hashtags validated");
         }
 
         userSubmissions[questId][participant]++;
@@ -99,6 +122,7 @@ contract ContentCreatorQuest is Quest {
             contentUrl: contentUrl,
             hashtags: hashtags
         }));
+        emit Debug("Content submission recorded");
 
         saveInteractionData(questId, participant, interactionType, target);
         emit ContentSubmitted(questId, participant, contentUrl, hashtags);
