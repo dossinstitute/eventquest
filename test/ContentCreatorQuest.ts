@@ -33,7 +33,14 @@ describe("ContentCreatorQuest", function () {
     const requiredHashtags = ["#test"];
     const requireHashtags = true;
 
-    await contentCreatorQuest.initializeContentCreatorQuest(1, expirationTime, minSubmissions, requiredHashtags, requireHashtags);
+    await contentCreatorQuest.initializeContentCreatorQuest(
+      1,
+      1, // questTypeId
+      expirationTime,
+      minSubmissions,
+      requiredHashtags,
+      requireHashtags
+    );
 
     const quest = await contentCreatorQuest.quests(1);
     console.log("Quest initialized:", quest);
@@ -51,7 +58,14 @@ describe("ContentCreatorQuest", function () {
     const requiredHashtags = ["#test"];
     const requireHashtags = true;
 
-    await contentCreatorQuest.initializeContentCreatorQuest(questId, expirationTime, minSubmissions, requiredHashtags, requireHashtags);
+    await contentCreatorQuest.initializeContentCreatorQuest(
+      questId,
+      1, // questTypeId
+      expirationTime,
+      minSubmissions,
+      requiredHashtags,
+      requireHashtags
+    );
 
     const contentUrl = "http://example.com";
     const hashtags = ["#test"];
@@ -74,7 +88,14 @@ describe("ContentCreatorQuest", function () {
     const requiredHashtags = ["#test"];
     const requireHashtags = true;
 
-    await contentCreatorQuest.initializeContentCreatorQuest(questId, expirationTime, minSubmissions, requiredHashtags, requireHashtags);
+    await contentCreatorQuest.initializeContentCreatorQuest(
+      questId,
+      1, // questTypeId
+      expirationTime,
+      minSubmissions,
+      requiredHashtags,
+      requireHashtags
+    );
 
     const contentUrl = "http://example.com";
     const hashtags = ["#wrong"];
@@ -93,7 +114,14 @@ describe("ContentCreatorQuest", function () {
     const requiredHashtags = ["#test"];
     const requireHashtags = true;
 
-    await contentCreatorQuest.initializeContentCreatorQuest(questId, expirationTime, minSubmissions, requiredHashtags, requireHashtags);
+    await contentCreatorQuest.initializeContentCreatorQuest(
+      questId,
+      1, // questTypeId
+      expirationTime,
+      minSubmissions,
+      requiredHashtags,
+      requireHashtags
+    );
 
     const contentUrl1 = "http://example.com/1";
     const contentUrl2 = "http://example.com/2";

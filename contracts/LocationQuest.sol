@@ -25,17 +25,18 @@ contract LocationQuest is Quest {
      * @param _questName The name of the quest.
      * @param _questType The type of the quest.
      */
-    constructor(address _questManager, string memory _questName, string memory _questType) 
+    constructor(address _questManager, string memory _questName, string memory _questType)
         Quest(_questManager, _questName, _questType) {}
 
     /**
      * @dev Initializes a new Location quest.
      * @param questId The ID of the quest to be initialized.
+     * @param questTypeId The ID of the quest type.
      * @param locations The list of locations required to complete the quest.
      * @param expirationTime The expiration time for the quest.
      */
-    function initializeLocationQuest(uint256 questId, string[] memory locations, uint256 expirationTime) public {
-        initializeQuest(questId, "", expirationTime);
+    function initializeLocationQuest(uint256 questId, uint256 questTypeId, string[] memory locations, uint256 expirationTime) public {
+        initializeQuest(questId, questTypeId, "", expirationTime);
         requiredLocations[questId] = locations;
     }
 
@@ -49,10 +50,10 @@ contract LocationQuest is Quest {
     function interact(uint256 questId, address participant, string memory interactionType, bytes memory target) public override {
         require(quests[questId].isActive, "Quest is not active.");
         require(!isQuestExpired(questId), "Quest has expired.");
-        
+
         string memory location = abi.decode(target, (string));
         require(!interactedLocations[questId][location], "Location already interacted with.");
-        
+
         interactedLocations[questId][location] = true;
         saveInteractionData(questId, participant, interactionType, target);
         emit LocationInteracted(questId, participant, location);

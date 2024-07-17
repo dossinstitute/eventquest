@@ -127,27 +127,26 @@ contract QuestTypes {
      */
     function getQuestTypeCount() public view returns (uint256) {
         return questTypeCounter;
-    }
+		}
+		/**
+		 * @notice Gets a quest type by its index in the list of all types.
+		 * @param index The index of the quest type.
+		 * @return The QuestType struct at the specified index.
+		 */
+		function getQuestTypeByIndex(uint256 index) public view returns (QuestType memory) {
+			require(index >= 0 && index < questTypeCounter, "Index out of bounds");
+			uint256 currentIndex = 0;
 
-    /**
-     * @notice Gets a quest type by its index in the list of all types.
-     * @param index The index of the quest type.
-     * @return The QuestType struct at the specified index.
-     */
-    function getQuestTypeByIndex(uint256 index) public view returns (QuestType memory) {
-        require(index < questTypeCounter, "Index out of bounds");
-        uint256 currentIndex = 0;
+			for (uint256 i = 1; i <= questTypeCounter; i++) {
+				if (questTypes[i].questTypeId != 0) {
+					if (currentIndex == index) {
+						return questTypes[i];
+					}
+					currentIndex++;
+				}
+			}
 
-        for (uint256 i = 1; i <= questTypeCounter; i++) {
-            if (questTypes[i].questTypeId != 0) {
-                if (currentIndex == index) {
-                    return questTypes[i];
-                }
-                currentIndex++;
-            }
-        }
-
-        revert("Index out of bounds");
-    }
+			revert("Index out of bounds");
+		}
 }
 

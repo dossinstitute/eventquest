@@ -35,6 +35,7 @@ abstract contract Quest {
     /// @notice Structure to hold quest information.
     struct QuestInfo {
         uint256 questId;
+        uint256 questTypeId;
         bytes data;
         bool isInitialized;
         bool isActive;
@@ -70,14 +71,16 @@ abstract contract Quest {
     /**
      * @dev Initializes a new quest.
      * @param questId The ID of the quest to be initialized.
+     * @param questTypeId The ID of the quest type.
      * @param data The initial data for the quest.
      * @param expirationTime The expiration time for the quest.
      */
-    function initializeQuest(uint256 questId, bytes memory data, uint256 expirationTime) public virtual {
+    function initializeQuest(uint256 questId, uint256 questTypeId, bytes memory data, uint256 expirationTime) public virtual {
         require(!quests[questId].isInitialized, "Quest is already initialized.");
 
         QuestInfo storage newQuest = quests[questId];
         newQuest.questId = questId;
+        newQuest.questTypeId = questTypeId;
         newQuest.data = data;
         newQuest.isInitialized = true;
         newQuest.isActive = true;

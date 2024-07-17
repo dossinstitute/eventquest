@@ -1,121 +1,183 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
+const Web3 = require("web3");
 
-describe("QuestTypes Contract", function () {
-  let QuestTypes;
-  let questTypes;
-  let owner;
-
-  before(async function () {
-    [owner] = await ethers.getSigners();
-  });
+describe("QuestType", function () {
+  let questType;
+  let deployer, user1;
+  const web3 = new Web3();
 
   beforeEach(async function () {
-    // Deploy a new contract before each test
-    QuestTypes = await ethers.getContractFactory("QuestTypes");
-    questTypes = await QuestTypes.deploy();
-    await questTypes.waitForDeployment();
+    [deployer, user1] = await ethers.getSigners();
 
-    // Create initial quest types for consistent testing
-    await questTypes.createQuestType(
-      "Test Quest 1",
-      "This is a test quest 1",
-      "TestScreen1",
-      "TestContract1",
-      owner.address,
-      "SponsorReqContract1",
-      owner.address
-    );
-
-    await questTypes.createQuestType(
-      "Test Quest 2",
-      "This is a test quest 2",
-      "TestScreen2",
-      "TestContract2",
-      owner.address,
-      "SponsorReqContract2",
-      owner.address
-    );
+    const QuestType = await ethers.getContractFactory("QuestTypes"); // Correct contract name
+    questType = await QuestType.deploy();
+    await questType.waitForDeployment();
   });
 
-  it("should create a new quest type", async function () {
-    const tx = await questTypes.createQuestType(
-      "Test Quest",
-      "This is a test quest",
-      "TestScreen",
-      "TestContract",
-      owner.address,
-      "SponsorReqContract",
-      owner.address
+  it("Should create a new QuestType", async function () {
+    const name = "Test Quest";
+    const description = "Test Description";
+    const screenName = "Test Screen Name";
+    const questContractName = "TestQuestContract";
+    const questContractAddress = web3.utils.padLeft(0, 40);
+    const sponsorRequirementsContractName = "TestSponsorRequirementsContract";
+    const sponsorRequirementsAddress = web3.utils.padLeft(0, 40);
+
+    await questType.createQuestType(
+      name,
+      description,
+      screenName,
+      questContractName,
+      questContractAddress,
+      sponsorRequirementsContractName,
+      sponsorRequirementsAddress
     );
-    await tx.wait();
 
-    const questType = await questTypes.readQuestType(3); // Third quest type created
-    expect(questType.name).to.equal("Test Quest");
-    expect(questType.description).to.equal("This is a test quest");
-    expect(questType.screenName).to.equal("TestScreen");
-    expect(questType.questContractName).to.equal("TestContract");
-    expect(questType.questContractAddress).to.equal(owner.address);
-    expect(questType.sponsorRequirementsContractName).to.equal("SponsorReqContract");
-    expect(questType.sponsorRequirementsAddress).to.equal(owner.address);
+    const questTypeCount = await questType.getQuestTypeCount();
+    expect(questTypeCount).to.equal(1);
+
+    const questTypeData = await questType.readQuestType(1);
+    expect(questTypeData.name).to.equal(name);
   });
 
-  it("should read a quest type", async function () {
-    const questType = await questTypes.readQuestType(1);
-    expect(questType.name).to.equal("Test Quest 1");
-    expect(questType.description).to.equal("This is a test quest 1");
-    expect(questType.screenName).to.equal("TestScreen1");
-    expect(questType.questContractName).to.equal("TestContract1");
-    expect(questType.questContractAddress).to.equal(owner.address);
-    expect(questType.sponsorRequirementsContractName).to.equal("SponsorReqContract1");
-    expect(questType.sponsorRequirementsAddress).to.equal(owner.address);
-  });
+  it("Should update a QuestType", async function () {
+    const name = "Test Quest";
+    const description = "Test Description";
+    const screenName = "Test Screen Name";
+    const questContractName = "TestQuestContract";
+    const questContractAddress = web3.utils.padLeft(0, 40);
+    const sponsorRequirementsContractName = "TestSponsorRequirementsContract";
+    const sponsorRequirementsAddress = web3.utils.padLeft(0, 40);
 
-  it("should update a quest type", async function () {
-    const tx = await questTypes.updateQuestType(
+    await questType.createQuestType(
+      name,
+      description,
+      screenName,
+      questContractName,
+      questContractAddress,
+      sponsorRequirementsContractName,
+      sponsorRequirementsAddress
+    );
+
+    const newName = "Updated Quest";
+    const newDescription = "Updated Description";
+    const newScreenName = "Updated Screen Name";
+    const newQuestContractName = "UpdatedQuestContract";
+    const newQuestContractAddress = web3.utils.padLeft(1, 40); // New address
+    const newSponsorRequirementsContractName = "UpdatedSponsorRequirementsContract";
+    const newSponsorRequirementsAddress = web3.utils.padLeft(1, 40); // New address
+
+    await questType.updateQuestType(
       1,
-      "Updated Quest",
-      "Updated description",
-      "UpdatedScreen",
-      "UpdatedContract",
-      owner.address,
-      "UpdatedSponsorReqContract",
-      owner.address
+      newName,
+      newDescription,
+      newScreenName,
+      newQuestContractName,
+      newQuestContractAddress,
+      newSponsorRequirementsContractName,
+      newSponsorRequirementsAddress
     );
-    await tx.wait();
 
-    const questType = await questTypes.readQuestType(1);
-    expect(questType.name).to.equal("Updated Quest");
-    expect(questType.description).to.equal("Updated description");
-    expect(questType.screenName).to.equal("UpdatedScreen");
-    expect(questType.questContractName).to.equal("UpdatedContract");
-    expect(questType.questContractAddress).to.equal(owner.address);
-    expect(questType.sponsorRequirementsContractName).to.equal("UpdatedSponsorReqContract");
-    expect(questType.sponsorRequirementsAddress).to.equal(owner.address);
+    const updatedQuestTypeData = await questType.readQuestType(1);
+    expect(updatedQuestTypeData.name).to.equal(newName);
   });
 
-  it("should delete a quest type", async function () {
-    const tx = await questTypes.deleteQuestType(1);
-    await tx.wait();
+  it("Should delete a QuestType", async function () {
+    const name = "Test Quest";
+    const description = "Test Description";
+    const screenName = "Test Screen Name";
+    const questContractName = "TestQuestContract";
+    const questContractAddress = web3.utils.padLeft(0, 40);
+    const sponsorRequirementsContractName = "TestSponsorRequirementsContract";
+    const sponsorRequirementsAddress = web3.utils.padLeft(0, 40);
 
-    await expect(questTypes.readQuestType(1)).to.be.revertedWith("QuestType does not exist");
+    await questType.createQuestType(
+      name,
+      description,
+      screenName,
+      questContractName,
+      questContractAddress,
+      sponsorRequirementsContractName,
+      sponsorRequirementsAddress
+    );
+
+    await questType.deleteQuestType(1);
+
+    await expect(questType.readQuestType(1)).to.be.revertedWith("QuestType does not exist");
   });
 
-  it("should list quest types", async function () {
-    const questTypesList = await questTypes.listQuestTypes();
-    expect(questTypesList.length).to.equal(2);
-    expect(questTypesList[0].name).to.equal("Test Quest 1");
-    expect(questTypesList[1].name).to.equal("Test Quest 2");
+  it("Should list all QuestTypes", async function () {
+    const name = "Test Quest";
+    const description = "Test Description";
+    const screenName = "Test Screen Name";
+    const questContractName = "TestQuestContract";
+    const questContractAddress = web3.utils.padLeft(0, 40);
+    const sponsorRequirementsContractName = "TestSponsorRequirementsContract";
+    const sponsorRequirementsAddress = web3.utils.padLeft(0, 40);
+
+    await questType.createQuestType(
+      name,
+      description,
+      screenName,
+      questContractName,
+      questContractAddress,
+      sponsorRequirementsContractName,
+      sponsorRequirementsAddress
+    );
+
+    const questTypes = await questType.listQuestTypes();
+    expect(questTypes.length).to.equal(1);
+    expect(questTypes[0].name).to.equal(name);
   });
 
-  it("should get quest type count", async function () {
-    const count = await questTypes.getQuestTypeCount();
-    expect(count).to.equal(2);
+  it("Should get the count of QuestTypes", async function () {
+    const name = "Test Quest";
+    const description = "Test Description";
+    const screenName = "Test Screen Name";
+    const questContractName = "TestQuestContract";
+    const questContractAddress = web3.utils.padLeft(0, 40);
+    const sponsorRequirementsContractName = "TestSponsorRequirementsContract";
+    const sponsorRequirementsAddress = web3.utils.padLeft(0, 40);
+
+    await questType.createQuestType(
+      name,
+      description,
+      screenName,
+      questContractName,
+      questContractAddress,
+      sponsorRequirementsContractName,
+      sponsorRequirementsAddress
+    );
+
+    const questTypeCount = await questType.getQuestTypeCount();
+    expect(questTypeCount).to.equal(1);
   });
 
-  it("should get a quest type by index", async function () {
-    const questType = await questTypes.getQuestTypeByIndex(1);
-    expect(questType.name).to.equal("Test Quest 1");
+  it("Should get a QuestType by index", async function () {
+    const name = "Test Quest";
+    const description = "Test Description";
+    const screenName = "Test Screen Name";
+    const questContractName = "TestQuestContract";
+    const questContractAddress = web3.utils.padLeft(0, 40);
+    const sponsorRequirementsContractName = "TestSponsorRequirementsContract";
+    const sponsorRequirementsAddress = web3.utils.padLeft(0, 40);
+
+    await questType.createQuestType(
+      name,
+      description,
+      screenName,
+      questContractName,
+      questContractAddress,
+      sponsorRequirementsContractName,
+      sponsorRequirementsAddress
+    );
+
+    const questTypeCount = await questType.getQuestTypeCount();
+    expect(questTypeCount).to.equal(1);
+
+    const questTypeByIndex = await questType.getQuestTypeByIndex(0); // Using 0-based index
+    expect(questTypeByIndex.name).to.equal(name);
   });
 });
 

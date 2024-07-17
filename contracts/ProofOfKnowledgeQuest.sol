@@ -32,19 +32,20 @@ contract ProofOfKnowledgeQuest is Quest {
      * @param _questName The name of the quest.
      * @param _questType The type of the quest.
      */
-    constructor(address _questManager, string memory _questName, string memory _questType) 
+    constructor(address _questManager, string memory _questName, string memory _questType)
         Quest(_questManager, _questName, _questType) {}
 
     /**
      * @dev Initializes a new ProofOfKnowledge quest.
      * @param questId The ID of the quest to be initialized.
+     * @param questTypeId The ID of the quest type.
      * @param questionTexts The list of question texts for the quest.
      * @param correctAnswers The list of correct answers for the questions.
      * @param expirationTime The expiration time for the quest.
      */
-    function initializeProofOfKnowledgeQuest(uint256 questId, string[] memory questionTexts, string[] memory correctAnswers, uint256 expirationTime) public {
+    function initializeProofOfKnowledgeQuest(uint256 questId, uint256 questTypeId, string[] memory questionTexts, string[] memory correctAnswers, uint256 expirationTime) public {
         require(questionTexts.length == correctAnswers.length, "Question and answer length mismatch");
-        initializeQuest(questId, "", expirationTime);
+        initializeQuest(questId, questTypeId, "", expirationTime);
         for (uint256 i = 0; i < questionTexts.length; i++) {
             questions[questId].push(Question({
                 questionText: questionTexts[i],
@@ -64,14 +65,14 @@ contract ProofOfKnowledgeQuest is Quest {
         require(keccak256(abi.encodePacked(interactionType)) == keccak256(abi.encodePacked("answer")), "Invalid interaction type.");
         require(quests[questId].isActive, "Quest is not active.");
         require(!isQuestExpired(questId), "Quest has expired.");
-        
+
         (uint256 questionId, string memory answer) = abi.decode(target, (uint256, string));
         require(questionId < questions[questId].length, "Invalid question ID.");
         require(!answeredQuestions[questId][participant][questionId], "Question already answered.");
 
         bool correct = keccak256(abi.encodePacked(answer)) == keccak256(abi.encodePacked(questions[questId][questionId].correctAnswer));
         answeredQuestions[questId][participant][questionId] = true;
-        
+
         saveInteractionData(questId, participant, interactionType, target);
         emit QuestionAnswered(questId, participant, questionId, correct);
 

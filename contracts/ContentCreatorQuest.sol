@@ -43,6 +43,7 @@ contract ContentCreatorQuest is Quest {
     /**
      * @dev Initializes a new ContentCreator quest.
      * @param questId The ID of the quest to be initialized.
+     * @param questTypeId The ID of the quest type.
      * @param expirationTime The expiration time for the quest.
      * @param _minSubmissions The minimum number of submissions required to complete the quest.
      * @param _requiredHashtags The required hashtags for the content.
@@ -50,6 +51,7 @@ contract ContentCreatorQuest is Quest {
      */
     function initializeContentCreatorQuest(
         uint256 questId,
+        uint256 questTypeId,
         uint256 expirationTime,
         uint256 _minSubmissions,
         string[] memory _requiredHashtags,
@@ -59,7 +61,7 @@ contract ContentCreatorQuest is Quest {
         require(_minSubmissions > 0, "Minimum submissions must be greater than zero.");
         require(!quests[questId].isInitialized, "Quest is already initialized.");
 
-        initializeQuest(questId, "", expirationTime);
+        initializeQuest(questId, questTypeId, "", expirationTime);
         minSubmissions = _minSubmissions;
         requiredHashtags = _requiredHashtags;
         requireHashtags = _requireHashtags;

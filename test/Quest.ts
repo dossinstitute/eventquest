@@ -1,10 +1,12 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
+const Web3 = require("web3");
 
 describe("Quest", function () {
   let questManager;
   let concreteQuest;
   let deployer, user1, user2;
+  const web3 = new Web3();
 
   beforeEach(async function () {
     [deployer, user1, user2] = await ethers.getSigners();
@@ -30,8 +32,10 @@ describe("Quest", function () {
   it("Should initialize a new quest", async function () {
     const currentTimestamp = await getCurrentBlockTimestamp();
     const expirationTime = currentTimestamp + 86400; // 1 day in the future
+    const questTypeId = 1;
+    const data = "0x"; // Correcting to a valid empty bytes value
 
-    await concreteQuest.initializeQuest(1, "0x", expirationTime);
+    await concreteQuest.initializeQuest(1, questTypeId, data, expirationTime);
 
     const quest = await concreteQuest.quests(1);
     expect(quest.isActive).to.be.true;
@@ -45,9 +49,10 @@ describe("Quest", function () {
   it("Should return active quests", async function () {
     const currentTimestamp = await getCurrentBlockTimestamp();
     const expirationTime = currentTimestamp + 86400; // 1 day in the future
+    const data = "0x"; // Correcting to a valid empty bytes value
 
-    await concreteQuest.initializeQuest(1, "0x", expirationTime);
-    await concreteQuest.initializeQuest(2, "0x", expirationTime + 86400);
+    await concreteQuest.initializeQuest(1, 1, data, expirationTime);
+    await concreteQuest.initializeQuest(2, 1, data, expirationTime + 86400);
 
     const activeQuests = await concreteQuest.listActiveQuests();
     expect(activeQuests.length).to.equal(2);
@@ -58,17 +63,18 @@ describe("Quest", function () {
   it("Should not include completed quests", async function () {
     const currentTimestamp = await getCurrentBlockTimestamp();
     const expirationTime = currentTimestamp + 86400; // 1 day in the future
+    const data = "0x"; // Correcting to a valid empty bytes value
 
-    await concreteQuest.initializeQuest(1, "0x", expirationTime);
-    await concreteQuest.initializeQuest(2, "0x", expirationTime + 86400);
-    await concreteQuest.initializeQuest(3, "0x", expirationTime + 172800); // Adding a third quest
+    await concreteQuest.initializeQuest(1, 1, data, expirationTime);
+    await concreteQuest.initializeQuest(2, 1, data, expirationTime + 86400);
+    await concreteQuest.initializeQuest(3, 1, data, expirationTime + 172800); // Adding a third quest
 
     // Verify quests before completion
     let activeQuests = await concreteQuest.listActiveQuests();
     console.log("Active quests before completion: ", activeQuests);
 
     // Simulate completion of the first quest
-    await concreteQuest.interact(1, user1.address, "completion", "0x");
+    await concreteQuest.interact(1, user1.address, "completion", data);
 
     // Verify quests after completion
     activeQuests = await concreteQuest.listActiveQuests();
