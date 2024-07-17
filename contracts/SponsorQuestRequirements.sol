@@ -1,11 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
 
+/**
+ * @title SponsorQuestRequirements
+ * @dev This contract manages the sponsor quest requirements.
+ */
 contract SponsorQuestRequirements {
     struct SponsorQuestRequirement {
         uint256 sqrId;
-        uint256 questEventId;
-        uint256 questTypeId;
+        uint256 questTypeEventId;
         string sponsorHashtags;
         bool sponsorHashtagsRequired;
     }
@@ -13,35 +16,36 @@ contract SponsorQuestRequirements {
     mapping(uint256 => SponsorQuestRequirement) public sponsorQuestRequirements;
     uint256 private sqrCounter;
 
+    event SponsorQuestRequirementCreated(uint256 sqrId);
+    event SponsorQuestRequirementUpdated(uint256 sqrId);
+    event SponsorQuestRequirementDeleted(uint256 sqrId);
+
     /**
-     * @notice Creates a new sponsor quest requirement.
-     * @param questEventId The ID of the quest event.
-     * @param questTypeId The ID of the quest type.
-     * @param sponsorHashtags The hashtags required by the sponsor.
-     * @param sponsorHashtagsRequired Whether the hashtags are required.
-     * @return sqrId The ID of the newly created sponsor quest requirement.
+     * @dev Creates a new sponsor quest requirement.
+     * @param questTypeEventId The ID of the quest type event.
+     * @param sponsorHashtags The sponsor hashtags.
+     * @param sponsorHashtagsRequired Whether sponsor hashtags are required.
      */
     function createSponsorQuestRequirement(
-        uint256 questEventId,
-        uint256 questTypeId,
+        uint256 questTypeEventId,
         string memory sponsorHashtags,
         bool sponsorHashtagsRequired
     ) public returns (uint256) {
         sqrCounter++;
         sponsorQuestRequirements[sqrCounter] = SponsorQuestRequirement(
             sqrCounter,
-            questEventId,
-            questTypeId,
+            questTypeEventId,
             sponsorHashtags,
             sponsorHashtagsRequired
         );
+        emit SponsorQuestRequirementCreated(sqrCounter);
         return sqrCounter;
     }
 
     /**
-     * @notice Reads a sponsor quest requirement by ID.
-     * @param sqrId The ID of the sponsor quest requirement to read.
-     * @return The SponsorQuestRequirement struct corresponding to the provided ID.
+     * @dev Reads a sponsor quest requirement by its ID.
+     * @param sqrId The ID of the sponsor quest requirement.
+     * @return The sponsor quest requirement.
      */
     function readSponsorQuestRequirement(uint256 sqrId) public view returns (SponsorQuestRequirement memory) {
         require(sponsorQuestRequirements[sqrId].sqrId != 0, "SponsorQuestRequirement does not exist");
@@ -49,40 +53,39 @@ contract SponsorQuestRequirements {
     }
 
     /**
-     * @notice Updates an existing sponsor quest requirement.
-     * @param sqrId The ID of the sponsor quest requirement to update.
-     * @param questEventId The new quest event ID.
-     * @param questTypeId The new quest type ID.
-     * @param sponsorHashtags The new sponsor hashtags.
-     * @param sponsorHashtagsRequired Whether the hashtags are required.
+     * @dev Updates an existing sponsor quest requirement.
+     * @param sqrId The ID of the sponsor quest requirement.
+     * @param questTypeEventId The ID of the quest type event.
+     * @param sponsorHashtags The sponsor hashtags.
+     * @param sponsorHashtagsRequired Whether sponsor hashtags are required.
      */
     function updateSponsorQuestRequirement(
         uint256 sqrId,
-        uint256 questEventId,
-        uint256 questTypeId,
+        uint256 questTypeEventId,
         string memory sponsorHashtags,
         bool sponsorHashtagsRequired
     ) public {
         require(sponsorQuestRequirements[sqrId].sqrId != 0, "SponsorQuestRequirement does not exist");
-        SponsorQuestRequirement storage sqr = sponsorQuestRequirements[sqrId];
-        sqr.questEventId = questEventId;
-        sqr.questTypeId = questTypeId;
-        sqr.sponsorHashtags = sponsorHashtags;
-        sqr.sponsorHashtagsRequired = sponsorHashtagsRequired;
+        SponsorQuestRequirement storage sponsorQuestRequirement = sponsorQuestRequirements[sqrId];
+        sponsorQuestRequirement.questTypeEventId = questTypeEventId;
+        sponsorQuestRequirement.sponsorHashtags = sponsorHashtags;
+        sponsorQuestRequirement.sponsorHashtagsRequired = sponsorHashtagsRequired;
+        emit SponsorQuestRequirementUpdated(sqrId);
     }
 
     /**
-     * @notice Deletes a sponsor quest requirement by ID.
+     * @dev Deletes a sponsor quest requirement.
      * @param sqrId The ID of the sponsor quest requirement to delete.
      */
     function deleteSponsorQuestRequirement(uint256 sqrId) public {
         require(sponsorQuestRequirements[sqrId].sqrId != 0, "SponsorQuestRequirement does not exist");
         delete sponsorQuestRequirements[sqrId];
+        emit SponsorQuestRequirementDeleted(sqrId);
     }
 
     /**
-     * @notice Lists all sponsor quest requirements.
-     * @return An array of all SponsorQuestRequirement structs.
+     * @dev Lists all sponsor quest requirements.
+     * @return An array of sponsor quest requirements.
      */
     function listSponsorQuestRequirements() public view returns (SponsorQuestRequirement[] memory) {
         SponsorQuestRequirement[] memory sqrList = new SponsorQuestRequirement[](sqrCounter);
@@ -99,32 +102,21 @@ contract SponsorQuestRequirements {
     }
 
     /**
-     * @notice Gets the current count of sponsor quest requirements.
-     * @return The current count of sponsor quest requirements.
+     * @dev Gets the count of sponsor quest requirements.
+     * @return The count of sponsor quest requirements.
      */
     function getSponsorQuestRequirementCount() public view returns (uint256) {
         return sqrCounter;
     }
 
     /**
-     * @notice Gets a sponsor quest requirement by its index in the list of all requirements.
+     * @dev Gets a sponsor quest requirement by its index.
      * @param index The index of the sponsor quest requirement.
-     * @return The SponsorQuestRequirement struct at the specified index.
+     * @return The sponsor quest requirement.
      */
     function getSponsorQuestRequirementByIndex(uint256 index) public view returns (SponsorQuestRequirement memory) {
-        require(index > 0 && index <= sqrCounter, "Index out of bounds");
-        uint256 currentIndex = 0;
-
-        for (uint256 i = 1; i <= sqrCounter; i++) {
-            if (sponsorQuestRequirements[i].sqrId != 0) {
-                currentIndex++;
-                if (currentIndex == index) {
-                    return sponsorQuestRequirements[i];
-                }
-            }
-        }
-
-        revert("Index out of bounds");
+        require(index < sqrCounter, "Index out of bounds");
+        return sponsorQuestRequirements[index + 1];
     }
 }
 

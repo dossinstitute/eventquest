@@ -135,15 +135,15 @@ contract QuestTypes {
      * @return The QuestType struct at the specified index.
      */
     function getQuestTypeByIndex(uint256 index) public view returns (QuestType memory) {
-        require(index > 0 && index <= questTypeCounter, "Index out of bounds");
+        require(index < questTypeCounter, "Index out of bounds");
         uint256 currentIndex = 0;
 
         for (uint256 i = 1; i <= questTypeCounter; i++) {
             if (questTypes[i].questTypeId != 0) {
-                currentIndex++;
                 if (currentIndex == index) {
                     return questTypes[i];
                 }
+                currentIndex++;
             }
         }
 

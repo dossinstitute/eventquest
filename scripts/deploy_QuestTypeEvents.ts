@@ -1,8 +1,8 @@
 async function main() {
-  const SponsorQuestRequirements = await ethers.getContractFactory("SponsorQuestRequirements");
-  const sponsorQuestRequirements = await SponsorQuestRequirements.deploy();
-  await sponsorQuestRequirements.waitForDeployment();
-  console.log("SponsorQuestRequirements deployed to:", sponsorQuestRequirements.target);
+  const QuestTypeEvents = await ethers.getContractFactory("QuestTypeEvent");
+  const questTypeEvents = await QuestTypeEvents.deploy();
+  await questTypeEvents.waitForDeployment();
+  console.log("QuestTypeEvent deployed to:", questTypeEvents.target);
 }
 
 main().catch((error) => {

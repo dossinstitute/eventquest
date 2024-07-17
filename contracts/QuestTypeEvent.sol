@@ -1,33 +1,40 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
 
-contract QuestTypeEvents {
-    struct QuestTypeEvent {
+/**
+ * @title QuestTypeEvent
+ * @dev This contract manages the quest type events.
+ */
+contract QuestTypeEvent {
+    struct QuestTypeEventStruct {
         uint256 eventId;
-        uint256 questTypeId; // Reference to quest_type.quest_type_id
-        uint256 questEventId; // Primary key
+        uint256 questTypeId;
+        uint256 questTypeEventId;
         uint256 reward;
-        string name; // Name of the quest event for attendees
-        string description; // Description for attendees
+        string name;
+        string description;
         uint256 requiredInteractions;
         uint256 questEventStartDate;
         uint256 questEventEndDate;
     }
 
-    mapping(uint256 => QuestTypeEvent) public questTypeEvents;
-    uint256 private questEventCounter;
+    mapping(uint256 => QuestTypeEventStruct) public questTypeEvents;
+    uint256 private questTypeEventCounter;
+
+    event QuestTypeEventCreated(uint256 questTypeEventId);
+    event QuestTypeEventUpdated(uint256 questTypeEventId);
+    event QuestTypeEventDeleted(uint256 questTypeEventId);
 
     /**
-     * @notice Creates a new quest type event.
+     * @dev Creates a new quest type event.
      * @param eventId The ID of the event.
      * @param questTypeId The ID of the quest type.
-     * @param reward The reward for completing the quest.
-     * @param name The name of the quest event.
-     * @param description The description of the quest event.
+     * @param reward The reward for the quest.
+     * @param name The name of the quest.
+     * @param description The description of the quest.
      * @param requiredInteractions The number of required interactions.
      * @param questEventStartDate The start date of the quest event.
      * @param questEventEndDate The end date of the quest event.
-     * @return questEventId The ID of the newly created quest event.
      */
     function createQuestTypeEvent(
         uint256 eventId,
@@ -39,11 +46,11 @@ contract QuestTypeEvents {
         uint256 questEventStartDate,
         uint256 questEventEndDate
     ) public returns (uint256) {
-        questEventCounter++;
-        questTypeEvents[questEventCounter] = QuestTypeEvent(
+        questTypeEventCounter++;
+        questTypeEvents[questTypeEventCounter] = QuestTypeEventStruct(
             eventId,
             questTypeId,
-            questEventCounter,
+            questTypeEventCounter,
             reward,
             name,
             description,
@@ -51,33 +58,34 @@ contract QuestTypeEvents {
             questEventStartDate,
             questEventEndDate
         );
-        return questEventCounter;
+        emit QuestTypeEventCreated(questTypeEventCounter);
+        return questTypeEventCounter;
     }
 
     /**
-     * @notice Reads a quest type event by ID.
-     * @param questEventId The ID of the quest type event to read.
-     * @return The QuestTypeEvent struct corresponding to the provided ID.
+     * @dev Reads a quest type event by its ID.
+     * @param questTypeEventId The ID of the quest type event.
+     * @return The quest type event.
      */
-    function readQuestTypeEvent(uint256 questEventId) public view returns (QuestTypeEvent memory) {
-        require(questTypeEvents[questEventId].questEventId != 0, "QuestTypeEvent does not exist");
-        return questTypeEvents[questEventId];
+    function readQuestTypeEvent(uint256 questTypeEventId) public view returns (QuestTypeEventStruct memory) {
+        require(questTypeEvents[questTypeEventId].questTypeEventId != 0, "QuestTypeEvent does not exist");
+        return questTypeEvents[questTypeEventId];
     }
 
     /**
-     * @notice Updates an existing quest type event.
-     * @param questEventId The ID of the quest type event to update.
-     * @param eventId The new event ID.
-     * @param questTypeId The new quest type ID.
-     * @param reward The new reward.
-     * @param name The new name of the quest event.
-     * @param description The new description of the quest event.
-     * @param requiredInteractions The new number of required interactions.
-     * @param questEventStartDate The new start date of the quest event.
-     * @param questEventEndDate The new end date of the quest event.
+     * @dev Updates an existing quest type event.
+     * @param questTypeEventId The ID of the quest type event.
+     * @param eventId The ID of the event.
+     * @param questTypeId The ID of the quest type.
+     * @param reward The reward for the quest.
+     * @param name The name of the quest.
+     * @param description The description of the quest.
+     * @param requiredInteractions The number of required interactions.
+     * @param questEventStartDate The start date of the quest event.
+     * @param questEventEndDate The end date of the quest event.
      */
     function updateQuestTypeEvent(
-        uint256 questEventId,
+        uint256 questTypeEventId,
         uint256 eventId,
         uint256 questTypeId,
         uint256 reward,
@@ -87,8 +95,8 @@ contract QuestTypeEvents {
         uint256 questEventStartDate,
         uint256 questEventEndDate
     ) public {
-        require(questTypeEvents[questEventId].questEventId != 0, "QuestTypeEvent does not exist");
-        QuestTypeEvent storage questTypeEvent = questTypeEvents[questEventId];
+        require(questTypeEvents[questTypeEventId].questTypeEventId != 0, "QuestTypeEvent does not exist");
+        QuestTypeEventStruct storage questTypeEvent = questTypeEvents[questTypeEventId];
         questTypeEvent.eventId = eventId;
         questTypeEvent.questTypeId = questTypeId;
         questTypeEvent.reward = reward;
@@ -97,27 +105,29 @@ contract QuestTypeEvents {
         questTypeEvent.requiredInteractions = requiredInteractions;
         questTypeEvent.questEventStartDate = questEventStartDate;
         questTypeEvent.questEventEndDate = questEventEndDate;
+        emit QuestTypeEventUpdated(questTypeEventId);
     }
 
     /**
-     * @notice Deletes a quest type event by ID.
-     * @param questEventId The ID of the quest type event to delete.
+     * @dev Deletes a quest type event.
+     * @param questTypeEventId The ID of the quest type event to delete.
      */
-    function deleteQuestTypeEvent(uint256 questEventId) public {
-        require(questTypeEvents[questEventId].questEventId != 0, "QuestTypeEvent does not exist");
-        delete questTypeEvents[questEventId];
+    function deleteQuestTypeEvent(uint256 questTypeEventId) public {
+        require(questTypeEvents[questTypeEventId].questTypeEventId != 0, "QuestTypeEvent does not exist");
+        delete questTypeEvents[questTypeEventId];
+        emit QuestTypeEventDeleted(questTypeEventId);
     }
 
     /**
-     * @notice Lists all quest type events.
-     * @return An array of all QuestTypeEvent structs.
+     * @dev Lists all quest type events.
+     * @return An array of quest type events.
      */
-    function listQuestTypeEvents() public view returns (QuestTypeEvent[] memory) {
-        QuestTypeEvent[] memory questTypeEventList = new QuestTypeEvent[](questEventCounter);
+    function listQuestTypeEvents() public view returns (QuestTypeEventStruct[] memory) {
+        QuestTypeEventStruct[] memory questTypeEventList = new QuestTypeEventStruct[](questTypeEventCounter);
         uint256 currentIndex = 0;
 
-        for (uint256 i = 1; i <= questEventCounter; i++) {
-            if (questTypeEvents[i].questEventId != 0) {
+        for (uint256 i = 1; i <= questTypeEventCounter; i++) {
+            if (questTypeEvents[i].questTypeEventId != 0) {
                 questTypeEventList[currentIndex] = questTypeEvents[i];
                 currentIndex++;
             }
@@ -127,32 +137,21 @@ contract QuestTypeEvents {
     }
 
     /**
-     * @notice Gets the current count of quest type events.
-     * @return The current count of quest type events.
+     * @dev Gets the count of quest type events.
+     * @return The count of quest type events.
      */
     function getQuestTypeEventCount() public view returns (uint256) {
-        return questEventCounter;
+        return questTypeEventCounter;
     }
 
     /**
-     * @notice Gets a quest type event by its index in the list of all events.
+     * @dev Gets a quest type event by its index.
      * @param index The index of the quest type event.
-     * @return The QuestTypeEvent struct at the specified index.
+     * @return The quest type event.
      */
-    function getQuestTypeEventByIndex(uint256 index) public view returns (QuestTypeEvent memory) {
-        require(index > 0 && index <= questEventCounter, "Index out of bounds");
-        uint256 currentIndex = 0;
-
-        for (uint256 i = 1; i <= questEventCounter; i++) {
-            if (questTypeEvents[i].questEventId != 0) {
-                currentIndex++;
-                if (currentIndex == index) {
-                    return questTypeEvents[i];
-                }
-            }
-        }
-
-        revert("Index out of bounds");
+    function getQuestTypeEventByIndex(uint256 index) public view returns (QuestTypeEventStruct memory) {
+        require(index < questTypeEventCounter, "Index out of bounds");
+        return questTypeEvents[index + 1];
     }
 }
 
