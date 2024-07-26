@@ -69,8 +69,15 @@ describe("ContentCreatorQuest", function () {
 
     const contentUrl = "http://example.com";
     const hashtags = ["#test"];
+    const proof = "0x1234"; // mock proof data
+    const a = [0, 0]; // mock zk-SNARK proof
+    const b = [[0, 0], [0, 0]]; // mock zk-SNARK proof
+    const c = [0, 0]; // mock zk-SNARK proof
+    const input = [0]; // mock zk-SNARK proof
 
-    const contentData = web3.eth.abi.encodeParameters(["string", "string[]"], [contentUrl, hashtags]);
+    const contentData = web3.eth.abi.encodeParameters(["string", "string[]", "bytes", "uint256[2]", "uint256[2][2]", "uint256[2]", "uint256[1]"], 
+      [contentUrl, hashtags, proof, a, b, c, input]);
+    
     await contentCreatorQuest.connect(user1).interact(questId, user1.address, "submit", contentData);
 
     const submissions = await contentCreatorQuest.getContentSubmissions(questId);
@@ -99,8 +106,15 @@ describe("ContentCreatorQuest", function () {
 
     const contentUrl = "http://example.com";
     const hashtags = ["#wrong"];
+    const proof = "0x1234"; // mock proof data
+    const a = [0, 0]; // mock zk-SNARK proof
+    const b = [[0, 0], [0, 0]]; // mock zk-SNARK proof
+    const c = [0, 0]; // mock zk-SNARK proof
+    const input = [0]; // mock zk-SNARK proof
 
-    const contentData = web3.eth.abi.encodeParameters(["string", "string[]"], [contentUrl, hashtags]);
+    const contentData = web3.eth.abi.encodeParameters(["string", "string[]", "bytes", "uint256[2]", "uint256[2][2]", "uint256[2]", "uint256[1]"], 
+      [contentUrl, hashtags, proof, a, b, c, input]);
+
     await expect(contentCreatorQuest.connect(user1).interact(questId, user1.address, "submit", contentData))
       .to.be.revertedWith("Required hashtags are missing.");
   });
@@ -126,9 +140,16 @@ describe("ContentCreatorQuest", function () {
     const contentUrl1 = "http://example.com/1";
     const contentUrl2 = "http://example.com/2";
     const hashtags = ["#test"];
+    const proof = "0x1234"; // mock proof data
+    const a = [0, 0]; // mock zk-SNARK proof
+    const b = [[0, 0], [0, 0]]; // mock zk-SNARK proof
+    const c = [0, 0]; // mock zk-SNARK proof
+    const input = [0]; // mock zk-SNARK proof
 
-    const contentData1 = web3.eth.abi.encodeParameters(["string", "string[]"], [contentUrl1, hashtags]);
-    const contentData2 = web3.eth.abi.encodeParameters(["string", "string[]"], [contentUrl2, hashtags]);
+    const contentData1 = web3.eth.abi.encodeParameters(["string", "string[]", "bytes", "uint256[2]", "uint256[2][2]", "uint256[2]", "uint256[1]"], 
+      [contentUrl1, hashtags, proof, a, b, c, input]);
+    const contentData2 = web3.eth.abi.encodeParameters(["string", "string[]", "bytes", "uint256[2]", "uint256[2][2]", "uint256[2]", "uint256[1]"], 
+      [contentUrl2, hashtags, proof, a, b, c, input]);
 
     await contentCreatorQuest.connect(user1).interact(questId, user1.address, "submit", contentData1);
     await contentCreatorQuest.connect(user1).interact(questId, user1.address, "submit", contentData2);
