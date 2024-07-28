@@ -2,7 +2,7 @@
 pragma solidity ^0.8.18;
 
 import "./Quest.sol";
-import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
+import "./Verifier.sol";
 
 /**
  * @title ContentCreatorQuest
@@ -32,14 +32,19 @@ contract ContentCreatorQuest is Quest {
     string[] public requiredHashtags;
     bool public requireHashtags;
 
+    Verifier public verifier;
+
     /**
      * @dev Initializes the ContentCreatorQuest contract.
      * @param _questManager The address of the QuestManager contract.
      * @param _questName The name of the quest.
      * @param _questType The type of the quest.
+     * @param _verifier The address of the Verifier contract.
      */
-    constructor(address _questManager, string memory _questName, string memory _questType)
-        Quest(_questManager, _questName, _questType) {}
+    constructor(address _questManager, string memory _questName, string memory _questType, address _verifier)
+        Quest(_questManager, _questName, _questType) {
+        verifier = Verifier(_verifier);
+    }
 
     /**
      * @dev Initializes a new ContentCreator quest.
@@ -78,20 +83,28 @@ contract ContentCreatorQuest is Quest {
      * @param target The target content URL and hashtags being interacted with.
      */
     function interact(uint256 questId, address participant, string memory interactionType, bytes memory target) public override {
-        require(keccak256(abi.encodePacked(interactionType)) == keccak256(abi.encodePacked("submit")), "Invalid interaction type.");
-        require(quests[questId].isActive, "Quest is not active.");
-        require(!isQuestExpired(questId), "Quest has expired.");
+        emit Debug("Interaction started");
+        emit DebugUint256(questId);
+        emit DebugAddress(participant);
+        emit DebugString(interactionType);
 
-        (string memory contentUrl, string[] memory hashtags, bytes memory proof, uint256[2] memory a, uint256[2][2] memory b, uint256[2] memory c, uint256[1] memory input) = 
-            abi.decode(target, (string, string[], bytes, uint256[2], uint256[2][2], uint256[2], uint256[1]));
+        require(keccak256(abi.encodePacked(interactionType)) == keccak256(abi.encodePacked("submit")), "Invalid interaction type.");
+        emit Debug("Interaction type validated");
+
+        require(quests[questId].isActive, "Quest is not active.");
+        emit Debug("Quest is active");
+
+        require(!isQuestExpired(questId), "Quest has expired.");
+        emit Debug("Quest is not expired");
+
+        (string memory contentUrl, string[] memory hashtags, bytes memory proof, uint256[2] memory a, uint256[2][2] memory b, uint256[2] memory c, uint256[1] memory input) = abi.decode(target, (string, string[], bytes, uint256[2], uint256[2][2], uint256[2], uint256[1]));
+        emit Debug("Target decoded");
+        emit DebugString(contentUrl);
+        emit DebugUint256(hashtags.length);
 
         require(bytes(contentUrl).length > 0, "Content URL cannot be empty.");
+        emit Debug("Content URL is valid");
 
-        // Mock proof verification for testing purposes
-        // bool isValidProof = verifier.verifyProof(a, b, c, input);
-        // require(isValidProof, "Invalid zk-proof");
-
-        // Check for required hashtags
         if (requireHashtags) {
             bool allHashtagsPresent = true;
             for (uint i = 0; i < requiredHashtags.length; i++) {
@@ -108,7 +121,12 @@ contract ContentCreatorQuest is Quest {
                 }
             }
             require(allHashtagsPresent, "Required hashtags are missing.");
+            emit Debug("Hashtags validated");
         }
+
+        bool isValidProof = verifier.verifyProof(a, b, c, input);
+        require(isValidProof, "Invalid zk-SNARK proof.");
+        emit Debug("Proof validated");
 
         userSubmissions[questId][participant]++;
         contentSubmissions[questId].push(ContentSubmission({
@@ -116,6 +134,7 @@ contract ContentCreatorQuest is Quest {
             contentUrl: contentUrl,
             hashtags: hashtags
         }));
+        emit Debug("Content submission recorded");
 
         saveInteractionData(questId, participant, interactionType, target);
         emit ContentSubmitted(questId, participant, contentUrl, hashtags);

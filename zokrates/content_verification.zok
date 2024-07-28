@@ -1,0 +1,6 @@
+// content_verification.zok
+
+def main(private field contentHash, private field expectedHash) -> bool {
+    return contentHash == expectedHash;
+}
+

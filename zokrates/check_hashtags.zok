@@ -1,0 +1,18 @@
+import "sha256.zok" as sha256
+
+def main(private field urlHash, private field[] hashtagHashes, field[] contentHashes) -> bool {
+    // Ensure that the content contains all the hashtags
+    field valid = 1;
+    for field i in 0..hashtagHashes.length {
+        field found = 0;
+        for field j in 0..contentHashes.length {
+            if hashtagHashes[i] == contentHashes[j] {
+                found = 1;
+                break;
+            }
+        }
+        valid = valid & found;
+    }
+    return valid == 1;
+}
+
