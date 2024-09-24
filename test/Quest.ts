@@ -1,107 +1,91 @@
 const { expect } = require("chai");
+const { ethers } = require("hardhat");
+const Web3 = require("web3");
 
-describe("Quests", function () {
-  let questsContract;
-  let owner;
+describe("Quest", function () {
+  let questManager;
+  let concreteQuest;
+  let deployer, user1, user2;
+  const web3 = new Web3();
 
   beforeEach(async function () {
-    [owner] = await ethers.getSigners();
+    [deployer, user1, user2] = await ethers.getSigners();
 
-    const Quests = await ethers.getContractFactory("Quests");
-    questsContract = await Quests.deploy();
-    await questsContract.waitForDeployment();
+    const QuestManager = await ethers.getContractFactory("QuestManager");
+    questManager = await QuestManager.deploy();
+    await questManager.waitForDeployment();
+
+    const ConcreteQuest = await ethers.getContractFactory("ConcreteQuest");
+    concreteQuest = await ConcreteQuest.deploy(
+      questManager.target,
+      "Test Quest",
+      "Test Type"
+    );
+    await concreteQuest.waitForDeployment();
   });
 
-  it("Should create, update, read, list, and delete a quest", async function () {
-    // Create a quest
-    const createTx = await questsContract.createQuest(
-      "Quest 1",
-      "Description 1",
-      10,
-      1640995200,
-      1641081600,
-      1000
-    );
-    await createTx.wait();
-    
-    let questCount = await questsContract.getQuestCount();
-    console.log(`Quest Count after creation: ${questCount}`);
-    expect(questCount).to.equal(1);
+  async function getCurrentBlockTimestamp() {
+    const block = await ethers.provider.getBlock("latest");
+    return block.timestamp;
+  }
 
-    // Read the quest
-    let quest = await questsContract.readQuest(1);
-    expect(quest.name).to.equal("Quest 1");
-    expect(quest.description).to.equal("Description 1");
-    expect(quest.defaultInteractions).to.equal(10);
-    expect(quest.defaultStartDate).to.equal(1640995200);
-    expect(quest.defaultEndDate).to.equal(1641081600);
-    expect(quest.defaultRewardAmount).to.equal(1000);
-    expect(quest.status).to.equal(0); // Status.Active
+  it("Should initialize a new quest", async function () {
+    const currentTimestamp = await getCurrentBlockTimestamp();
+    const expirationTime = currentTimestamp + 86400; // 1 day in the future
+    const questTypeId = 1;
+    const data = "0x"; // Correcting to a valid empty bytes value
 
-    // Update the quest
-    const updateTx = await questsContract.updateQuest(
-      1,
-      "Updated Quest 1",
-      "Updated Description 1",
-      20,
-      1641081601,
-      1641168001,
-      2000,
-      1 // Status.Completed
-    );
-    await updateTx.wait();
+    await concreteQuest.initializeQuest(1, questTypeId, data, expirationTime);
 
-    // Read the updated quest
-    quest = await questsContract.readQuest(1);
-    expect(quest.name).to.equal("Updated Quest 1");
-    expect(quest.description).to.equal("Updated Description 1");
-    expect(quest.defaultInteractions).to.equal(20);
-    expect(quest.defaultStartDate).to.equal(1641081601);
-    expect(quest.defaultEndDate).to.equal(1641168001);
-    expect(quest.defaultRewardAmount).to.equal(2000);
-    expect(quest.status).to.equal(1); // Status.Completed
+    const quest = await concreteQuest.quests(1);
+    expect(quest.isActive).to.be.true;
+    expect(quest.isCompleted).to.be.false;
+    expect(quest.expirationTime).to.equal(expirationTime);
 
-    // List the quests
-    const quests = await questsContract.listQuests();
-    expect(quests.length).to.equal(1);
-    expect(quests[0].name).to.equal("Updated Quest 1");
-
-    // Delete the quest
-    const deleteTx = await questsContract.deleteQuest(1);
-    await deleteTx.wait();
-
-    // Verify the quest is deleted
-    await expect(questsContract.readQuest(1)).to.be.revertedWith("Quest does not exist");
-
-    // Verify the list function reflects the deletion
-    const questsAfterDeletion = await questsContract.listQuests();
-    console.log(`Quests after deletion: ${questsAfterDeletion.length}`);
-    expect(questsAfterDeletion.length).to.equal(0);
-
-    questCount = await questsContract.getQuestCount();
-    console.log(`Quest Count after deletion: ${questCount}`);
-    expect(questCount).to.equal(0);
+    const activeQuests = await concreteQuest.listActiveQuests();
+    expect(activeQuests[0].questId).to.equal(1);
   });
 
-  it("Should get quest by index", async function () {
-    // Create multiple quests
-    await questsContract.createQuest("Quest 1", "Description 1", 10, 1640995200, 1641081600, 1000);
-    await questsContract.createQuest("Quest 2", "Description 2", 20, 1641081600, 1641168000, 2000);
-    await questsContract.createQuest("Quest 3", "Description 3", 30, 1641168000, 1641254400, 3000);
+  it("Should return active quests", async function () {
+    const currentTimestamp = await getCurrentBlockTimestamp();
+    const expirationTime = currentTimestamp + 86400; // 1 day in the future
+    const data = "0x"; // Correcting to a valid empty bytes value
 
-    const questCount = await questsContract.getQuestCount();
-    expect(questCount).to.equal(3);
+    await concreteQuest.initializeQuest(1, 1, data, expirationTime);
+    await concreteQuest.initializeQuest(2, 1, data, expirationTime + 86400);
 
-    // Get quests by index
-    const quest1 = await questsContract.getQuestByIndex(0);
-    expect(quest1.name).to.equal("Quest 1");
-    const quest2 = await questsContract.getQuestByIndex(1);
-    expect(quest2.name).to.equal("Quest 2");
-    const quest3 = await questsContract.getQuestByIndex(2);
-    expect(quest3.name).to.equal("Quest 3");
+    const activeQuests = await concreteQuest.listActiveQuests();
+    expect(activeQuests.length).to.equal(2);
+    expect(activeQuests[0].questId).to.equal(1);
+    expect(activeQuests[1].questId).to.equal(2);
+  });
 
-    // Ensure index out of bounds is handled
-    await expect(questsContract.getQuestByIndex(3)).to.be.revertedWith("Index out of bounds");
+  it("Should not include completed quests", async function () {
+    const currentTimestamp = await getCurrentBlockTimestamp();
+    const expirationTime = currentTimestamp + 86400; // 1 day in the future
+    const data = "0x"; // Correcting to a valid empty bytes value
+
+    await concreteQuest.initializeQuest(1, 1, data, expirationTime);
+    await concreteQuest.initializeQuest(2, 1, data, expirationTime + 86400);
+    await concreteQuest.initializeQuest(3, 1, data, expirationTime + 172800); // Adding a third quest
+
+    // Verify quests before completion
+    let activeQuests = await concreteQuest.listActiveQuests();
+    console.log("Active quests before completion: ", activeQuests);
+
+    // Simulate completion of the first quest
+    await concreteQuest.interact(1, user1.address, "completion", data);
+
+    // Verify quests after completion
+    activeQuests = await concreteQuest.listActiveQuests();
+    console.log("Active quests after completion: ", activeQuests);
+
+    // Convert Result object to regular array
+    activeQuests = Array.from(activeQuests).sort((a, b) => Number(a.questId) - Number(b.questId));
+
+    expect(activeQuests.length).to.equal(2);
+    expect(activeQuests[0].questId).to.equal(2);
+    expect(activeQuests[1].questId).to.equal(3);
   });
 });
 

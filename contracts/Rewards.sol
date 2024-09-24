@@ -41,7 +41,14 @@ contract Rewards {
     }
 
     function listRewards() public view returns (Reward[] memory) {
-        Reward[] memory rewardList = new Reward[](rewardCounter);
+        uint256 activeRewardCount = 0;
+        for (uint256 i = 1; i <= rewardCounter; i++) {
+            if (rewards[i].rewardId != 0) {
+                activeRewardCount++;
+            }
+        }
+
+        Reward[] memory rewardList = new Reward[](activeRewardCount);
         uint256 currentIndex = 0;
 
         for (uint256 i = 1; i <= rewardCounter; i++) {
@@ -53,5 +60,24 @@ contract Rewards {
 
         return rewardList;
     }
+    function getRewardCount() public view returns (uint256) {
+        return rewardCounter;
+    }
+
+    function getRewardByIndex(uint256 index) public view returns (Reward memory) {
+        require(index < rewardCounter, "Index out of bounds");
+        uint256 count = 0;
+        for (uint256 i = 1; i <= rewardCounter; i++) {
+            if (rewards[i].rewardId != 0) {
+                if (count == index) {
+                    return rewards[i];
+                }
+                count++;
+            }
+        }
+        revert("Reward at index not found");
+    }
+
+
 }
 

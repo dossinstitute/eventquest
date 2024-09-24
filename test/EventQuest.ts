@@ -1,28 +1,37 @@
-const { ethers } = require("hardhat");
 const { expect } = require("chai");
+const { ethers } = require("hardhat");
 
 describe("EventQuestManagement", function () {
   let eventQuestManagement;
   let events;
-  let quests;
+  let questManager;
+  let concreteQuest;
   let users;
   let sponsors;
   let questEvents;
   let userQuestEvents;
   let rewards;
   let rewardPools;
-	let deployer, user1, user2;
+  let deployer, user1, user2;
 
   beforeEach(async function () {
-		[deployer, user1, user2] = await ethers.getSigners();
+    [deployer, user1, user2] = await ethers.getSigners();
 
     const Events = await ethers.getContractFactory("Events");
     events = await Events.deploy();
     await events.waitForDeployment();
 
-    const Quests = await ethers.getContractFactory("Quests");
-    quests = await Quests.deploy();
-    await quests.waitForDeployment();
+    const QuestManager = await ethers.getContractFactory("QuestManager");
+    questManager = await QuestManager.deploy();
+    await questManager.waitForDeployment();
+
+    const ConcreteQuest = await ethers.getContractFactory("ConcreteQuest");
+    concreteQuest = await ConcreteQuest.deploy(
+      questManager.target,
+      "Test Quest",
+      "Test Type"
+    );
+    await concreteQuest.waitForDeployment();
 
     const Users = await ethers.getContractFactory("Users");
     users = await Users.deploy();
@@ -51,7 +60,7 @@ describe("EventQuestManagement", function () {
     const EventQuestManagement = await ethers.getContractFactory("EventQuestManagement");
     eventQuestManagement = await EventQuestManagement.deploy(
       events.target,
-      quests.target,
+      questManager.target,
       users.target,
       sponsors.target,
       questEvents.target,
@@ -78,20 +87,17 @@ describe("EventQuestManagement", function () {
   });
 
   it("Should create, update, read, list, and delete a quest", async function () {
-    await quests.createQuest("Test Quest", "Test Quest Desc", 10, 1640995200, 1641081600, 1000);
-    await quests.updateQuest(1, "Updated Quest", "updated desc", 20, 1640995201, 1641081601, 2000, 1);
-    const quest = await quests.readQuest(1);
-    expect(quest.name).to.equal("Updated Quest");
-    expect(quest.defaultInteractions).to.equal(20);
-    expect(quest.defaultStartDate).to.equal(1640995201);
-    expect(quest.defaultEndDate).to.equal(1641081601);
-    expect(quest.defaultRewardAmount).to.equal(2000);
+    await questManager.registerQuest(1, "Test Quest", concreteQuest.target, "Type A");
+    await questManager.updateQuest(1, "Updated Quest", concreteQuest.target, "Type B");
+    const questData = await questManager.getQuest(1);
+    expect(questData.name).to.equal("Updated Quest");
+    expect(questData.questType).to.equal("Type B");
 
-    const questList = await quests.listQuests();
+    const questList = await questManager.getAllQuestIds();
     expect(questList.length).to.equal(1);
 
-    await quests.deleteQuest(1);
-    await expect(quests.readQuest(1)).to.be.revertedWith("Quest does not exist");
+    await questManager.deleteQuest(1);
+    await expect(questManager.getQuest(1)).to.be.revertedWith("Quest ID does not exist.");
   });
 
   it("Should create, update, read, list, and delete a user", async function () {
@@ -175,6 +181,25 @@ describe("EventQuestManagement", function () {
 
     await rewards.deleteReward(1);
     await expect(rewards.readReward(1)).to.be.revertedWith("Reward does not exist");
+  });
+
+  it("Should return the correct reward count", async function () {
+    await rewards.createReward(1, 1, 1000, "token", deployer.address);
+    await rewards.createReward(1, 1, 1000, "nft", deployer.address);
+
+    const rewardCount = await rewards.getRewardCount();
+    expect(rewardCount).to.equal(2);
+  });
+
+  it("Should return the correct reward by index", async function () {
+    await rewards.createReward(1, 1, 1000, "token", deployer.address);
+    await rewards.createReward(1, 1, 1000, "nft", deployer.address);
+
+    const reward1Data = await rewards.getRewardByIndex(1);
+    const reward1Datafirst = await rewards.getRewardByIndex(0);
+
+    expect(reward1Data.rewardType).to.equal("nft");
+    expect(reward1Datafirst.rewardType).to.equal("token");
   });
 
   it("Should create, update, read, list, and delete a reward pool", async function () {
